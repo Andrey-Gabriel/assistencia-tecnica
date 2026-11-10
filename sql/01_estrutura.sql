@@ -14,7 +14,10 @@ CREATE TABLE IF NOT EXISTS tecnico (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(120) NOT NULL,
     telefone VARCHAR(25) NOT NULL,
-    email VARCHAR(254)
+    email VARCHAR(254),
+    senha_hash VARCHAR(255),
+    administrador BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE KEY uq_tecnico_email (email)
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS categoria_equipamento (

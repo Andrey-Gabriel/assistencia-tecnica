@@ -29,6 +29,7 @@ public class CategoriaController {
     }
 
     public void cadastrar(String nome) throws SQLException {
+        Sessao.exigirAutenticacao();
         nome = validarNome(nome);
 
         Categoria categoria = new Categoria();
@@ -38,10 +39,13 @@ public class CategoriaController {
     }
 
     public List<Categoria> listar() throws SQLException {
+        Sessao.exigirAutenticacao();
         return dao.listar();
     }
 
     public void atualizar(int id, String nome) throws SQLException {
+        Sessao.exigirAutenticacao();
+        validarId(id);
         nome = validarNome(nome);
 
         Categoria categoria = new Categoria(id, nome);
@@ -49,6 +53,14 @@ public class CategoriaController {
     }
 
     public void excluir(int id) throws SQLException {
+        Sessao.exigirAutenticacao();
+        validarId(id);
         dao.excluir(id);
+    }
+
+    private void validarId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Selecione uma categoria válida.");
+        }
     }
 }

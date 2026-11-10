@@ -3,19 +3,34 @@ package br.com.assistencia.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class conexao {
 
-    private static final String URL =
-        "jdbc:mysql://127.0.0.1:3306/assistencia_tecnica";
-
-    private static final String USUARIO = "assistencia";
-
-    private static final String SENHA = System.getenv("MYSQL_SENHA");
-//private static final String SENHA = "senha"; (você precisa configurar essa
-//variável com a senha correta e reiniciar o NetBeans. Caso contrário, a conexão poderá falhar.)
-    
     public static Connection conectar() throws SQLException {
-        return DriverManager.getConnection(URL, USUARIO, SENHA);
+        String url = System.getenv("MYSQL_URL");
+        if (url == null || url.isBlank()) {
+            url = "jdbc:mysql://127.0.0.1:3306/assistencia_tecnica";
+        }
+
+        String usuario = System.getenv("MYSQL_USUARIO");
+        if (usuario == null || usuario.isBlank()) {
+            usuario = "assistencia";
+        }
+
+        String senha = System.getenv("MYSQL_SENHA");
+        if (senha == null) {
+            throw new SQLException(
+                "Configure MYSQL_SENHA com a senha do MySQL e reinicie o NetBeans. "
+                + "Configure MYSQL_USUARIO para usar outro usuario (ex.: root)."
+            );
+        }
+
+        Properties configuracao = new Properties();
+        configuracao.setProperty("user", usuario);
+        configuracao.setProperty("password", senha);
+        configuracao.setProperty("connectTimeout", "5000");
+        configuracao.setProperty("socketTimeout", "15000");
+        return DriverManager.getConnection(url, configuracao);
     }
 }
