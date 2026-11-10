@@ -50,6 +50,16 @@ public class TecnicoDAO {
         return lista;
     }
 
+    public boolean existe(int id) throws SQLException {
+        try (Connection conn = conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM tecnico WHERE id = ?")) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public boolean ehAdministrador(int id) throws SQLException {
         try (Connection conn = conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement("SELECT administrador FROM tecnico WHERE id = ?")) {

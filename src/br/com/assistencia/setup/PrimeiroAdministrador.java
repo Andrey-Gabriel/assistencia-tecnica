@@ -12,7 +12,7 @@ public final class PrimeiroAdministrador {
 
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            br.com.assistencia.view.EstiloVisual.iniciar();
         } catch (Exception ignored) {
         }
         SwingUtilities.invokeLater(PrimeiroAdministrador::abrir);
@@ -80,6 +80,9 @@ public final class PrimeiroAdministrador {
             }.execute();
         });
         janela.setContentPane(painel);
+        criar.setForeground(java.awt.Color.WHITE);
+        criar.setBackground(br.com.assistencia.view.EstiloVisual.AZUL);
+        br.com.assistencia.view.EstiloVisual.aplicar(janela);
         janela.getRootPane().setDefaultButton(criar);
         janela.pack(); janela.setLocationRelativeTo(null); janela.setVisible(true);
     }

@@ -22,7 +22,7 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
     public TelaCadastroTecnico() {
         br.com.assistencia.controller.Sessao.exigirAdministrador();
         initComponents();
-        getContentPane().setBackground(java.awt.Color.WHITE);
+        EstiloVisual.aplicar(this);
         tabelaTecnicos.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tabelaTecnicos.getTableHeader().setReorderingAllowed(false);
         tabelaTecnicos.getColumnModel().getColumn(0).setMaxWidth(75);
@@ -253,6 +253,7 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
     }
 
     private void mostrarErro(Throwable erro) {
+        if (Formularios.tratarSessaoEncerrada(erro)) return;
         logger.log(java.util.logging.Level.WARNING, "Falha no cadastro de tecnicos", erro);
         String mensagem = erro.getMessage();
         if (erro instanceof java.sql.SQLException sql) {
@@ -280,29 +281,81 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
         lblTitulo = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
         separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
         lblModo = new javax.swing.JLabel();
         lblNome = new javax.swing.JLabel();
+        lblNome.setForeground(new java.awt.Color(40, 47, 56));
         txtNome = new javax.swing.JTextField();
+        txtNome.setBackground(new java.awt.Color(255, 255, 255));
+        txtNome.setForeground(new java.awt.Color(40, 47, 56));
         lblTelefone = new javax.swing.JLabel();
+        lblTelefone.setForeground(new java.awt.Color(40, 47, 56));
         txtTelefone = new javax.swing.JTextField();
+        txtTelefone.setBackground(new java.awt.Color(255, 255, 255));
+        txtTelefone.setForeground(new java.awt.Color(40, 47, 56));
         lblEmail = new javax.swing.JLabel();
+        lblEmail.setForeground(new java.awt.Color(40, 47, 56));
         txtEmail = new javax.swing.JTextField();
+        txtEmail.setBackground(new java.awt.Color(255, 255, 255));
+        txtEmail.setForeground(new java.awt.Color(40, 47, 56));
         lblAjuda = new javax.swing.JLabel();
+        lblAjuda.setFont(new java.awt.Font("Segoe UI", 0, 12));
         btnNovo = new javax.swing.JButton();
+        btnNovo.setOpaque(true);
+        btnNovo.setContentAreaFilled(false);
+        btnNovo.setBackground(new java.awt.Color(255, 255, 255));
+        btnNovo.setForeground(new java.awt.Color(40, 47, 56));
+        btnNovo.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnSalvar = new javax.swing.JButton();
+        btnSalvar.setOpaque(true);
+        btnSalvar.setContentAreaFilled(false);
         btnEditar = new javax.swing.JButton();
+        btnEditar.setOpaque(true);
+        btnEditar.setContentAreaFilled(false);
+        btnEditar.setBackground(new java.awt.Color(255, 255, 255));
+        btnEditar.setForeground(new java.awt.Color(40, 47, 56));
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnExcluir = new javax.swing.JButton();
+        btnExcluir.setOpaque(true);
+        btnExcluir.setContentAreaFilled(false);
+        btnExcluir.setBackground(new java.awt.Color(255, 255, 255));
+        btnExcluir.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnAtualizar = new javax.swing.JButton();
+        btnAtualizar.setOpaque(true);
+        btnAtualizar.setContentAreaFilled(false);
+        btnAtualizar.setBackground(new java.awt.Color(255, 255, 255));
+        btnAtualizar.setForeground(new java.awt.Color(40, 47, 56));
+        btnAtualizar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnFechar = new javax.swing.JButton();
+        btnFechar.setOpaque(true);
+        btnFechar.setContentAreaFilled(false);
+        btnFechar.setBackground(new java.awt.Color(255, 255, 255));
+        btnFechar.setForeground(new java.awt.Color(40, 47, 56));
+        btnFechar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblListagem = new javax.swing.JLabel();
         scrollTecnicos = new javax.swing.JScrollPane();
         tabelaTecnicos = new javax.swing.JTable();
+        tabelaTecnicos.setBackground(new java.awt.Color(255, 255, 255));
+        tabelaTecnicos.setForeground(new java.awt.Color(40, 47, 56));
         lblStatus = new javax.swing.JLabel();
+        lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
         lblSenha = new javax.swing.JLabel();
+        lblSenha.setForeground(new java.awt.Color(40, 47, 56));
+        lblSenha.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblConfirmar = new javax.swing.JLabel();
+        lblConfirmar.setForeground(new java.awt.Color(40, 47, 56));
+        lblConfirmar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtSenha = new javax.swing.JPasswordField();
+        txtSenha.setBackground(new java.awt.Color(255, 255, 255));
+        txtSenha.setForeground(new java.awt.Color(40, 47, 56));
         txtConfirmar = new javax.swing.JPasswordField();
+        txtConfirmar.setBackground(new java.awt.Color(255, 255, 255));
+        txtConfirmar.setForeground(new java.awt.Color(40, 47, 56));
         chkAdministrador = new javax.swing.JCheckBox();
+        chkAdministrador.setBackground(new java.awt.Color(246, 247, 249));
+        chkAdministrador.setForeground(new java.awt.Color(40, 47, 56));
+        chkAdministrador.setFont(new java.awt.Font("Segoe UI", 0, 13));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Tecnicos | Assistência Técnica");
@@ -310,36 +363,36 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
         setPreferredSize(new java.awt.Dimension(1000, 860));
 
         lblTitulo.setText("Técnicos");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 28)); // NOI18N
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22)); // NOI18N
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
 
         lblDescricao.setText("Gerencie os técnicos, seus perfis e o acesso ao sistema.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblDescricao.setForeground(new java.awt.Color(91, 105, 124));
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
 
         lblModo.setText("Novo técnico");
-        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
-        lblModo.setForeground(new java.awt.Color(25, 42, 64));
+        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblModo.setForeground(new java.awt.Color(40, 47, 56));
 
         lblNome.setText("Nome *");
-        lblNome.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
+        lblNome.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
-        txtNome.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtNome.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         txtNome.setToolTipText("Nome do tecnico, até 120 caracteres.");
 
         lblTelefone.setText("Telefone *");
-        lblTelefone.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
+        lblTelefone.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
-        txtTelefone.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtTelefone.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         txtTelefone.setToolTipText("Informe o telefone com DDD.");
 
         lblEmail.setText("E-mail");
-        lblEmail.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
+        lblEmail.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
-        txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
         lblAjuda.setText("Nome, telefone e e-mail são obrigatórios. Use uma senha de 8 a 128 caracteres.");
-        lblAjuda.setForeground(new java.awt.Color(91, 105, 124));
+        lblAjuda.setForeground(new java.awt.Color(102, 111, 123));
 
         btnNovo.setText("Novo");
         btnNovo.setToolTipText("Limpa os campos para iniciar um novo cadastro.");
@@ -350,7 +403,7 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
         });
 
         btnSalvar.setText("Salvar técnico");
-        btnSalvar.setBackground(new java.awt.Color(34, 76, 125));
+        btnSalvar.setBackground(new java.awt.Color(43, 76, 110));
         btnSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btnSalvar.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnSalvar.addActionListener(new java.awt.event.ActionListener() {
@@ -367,7 +420,7 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
         });
 
         btnExcluir.setText("Excluir selecionado");
-        btnExcluir.setForeground(new java.awt.Color(164, 40, 48));
+        btnExcluir.setForeground(new java.awt.Color(167, 49, 49));
         btnExcluir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnExcluirActionPerformed(evt);
@@ -389,11 +442,11 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
         });
 
         lblListagem.setText("Técnicos cadastrados");
-        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
-        lblListagem.setForeground(new java.awt.Color(25, 42, 64));
+        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblListagem.setForeground(new java.awt.Color(40, 47, 56));
 
         tabelaTecnicos.setAutoCreateRowSorter(true);
-        tabelaTecnicos.setRowHeight(30);
+        tabelaTecnicos.setRowHeight(28);
         tabelaTecnicos.setFillsViewportHeight(true);
         tabelaTecnicos.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         tabelaTecnicos.setModel(new javax.swing.table.DefaultTableModel(
@@ -422,15 +475,15 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
         scrollTecnicos.setViewportView(tabelaTecnicos);
 
         lblStatus.setText("Carregando tecnicos...");
-        lblStatus.setForeground(new java.awt.Color(91, 105, 124));
+        lblStatus.setForeground(new java.awt.Color(102, 111, 123));
 
         lblSenha.setText("Senha (deixe em branco para manter na edição)");
 
         lblConfirmar.setText("Confirmar senha");
 
-        txtSenha.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtSenha.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
-        txtConfirmar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtConfirmar.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
         chkAdministrador.setText("Administrador: pode gerenciar técnicos e senhas");
 
@@ -486,7 +539,7 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 36, 36)
+                .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 32, 32)
                 .addGap(4, 4, 4)
                 .addComponent(lblDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, 22, 22)
                 .addGap(18, 18, 18)
@@ -496,23 +549,23 @@ public class TelaCadastroTecnico extends javax.swing.JFrame implements TelaGeren
                 .addGap(14, 14, 14)
                 .addComponent(lblNome, javax.swing.GroupLayout.PREFERRED_SIZE, 20, 20)
                 .addGap(6, 6, 6)
-                .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 36, 36)
+                .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 34, 34)
                 .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 20, 20)
                     .addComponent(lblEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 20, 20))
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 36, 36)
-                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 36, 36))
+                    .addComponent(txtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 34, 34)
+                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 34, 34))
                 .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 20, 20)
                     .addComponent(lblConfirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, 20))
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 36, 36)
-                    .addComponent(txtConfirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 36, 36))
+                    .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 34, 34)
+                    .addComponent(txtConfirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 34, 34))
                 .addGap(8, 8, 8)
                 .addComponent(lblAjuda, javax.swing.GroupLayout.PREFERRED_SIZE, 18, 18)
                 .addGap(8, 8, 8)

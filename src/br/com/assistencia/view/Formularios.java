@@ -10,10 +10,10 @@ import java.time.format.ResolverStyle;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public final class Formularios {
+    private static boolean encerrandoSessao;
     private static final Locale BRASIL = Locale.forLanguageTag("pt-BR");
     private static final DateTimeFormatter DIA = DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
     private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
@@ -29,6 +29,11 @@ public final class Formularios {
     }
     public static String moeda(BigDecimal valor) {
         return valor == null ? "" : NumberFormat.getCurrencyInstance(BRASIL).format(valor);
+    }
+    public static String equipamento(String categoria, String marca, String modelo) {
+        String aparelho = java.util.stream.Stream.of(marca, modelo)
+                .filter(s -> s != null && !s.isBlank()).collect(java.util.stream.Collectors.joining(" "));
+        return categoria == null || categoria.isBlank() ? aparelho : categoria + " / " + aparelho;
     }
     public static String valorEditavel(BigDecimal valor) {
         return valor == null ? "" : valor.toPlainString().replace('.', ',');
@@ -70,15 +75,40 @@ public final class Formularios {
         tabela.setAutoCreateRowSorter(true);
         tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabela.getTableHeader().setReorderingAllowed(false);
-        tabela.setDefaultRenderer(LocalDateTime.class, new DefaultTableCellRenderer() {
+        tabela.setDefaultRenderer(LocalDateTime.class, new EstiloVisual.RenderizadorTabela() {
             @Override protected void setValue(Object valor) { super.setValue(data((LocalDateTime) valor)); }
         });
-        tabela.setDefaultRenderer(BigDecimal.class, new DefaultTableCellRenderer() {
+        tabela.setDefaultRenderer(BigDecimal.class, new EstiloVisual.RenderizadorTabela() {
             @Override protected void setValue(Object valor) { setHorizontalAlignment(RIGHT); super.setValue(moeda((BigDecimal) valor)); }
         });
         if (tipos.length > 0) tabela.getColumnModel().getColumn(0).setMaxWidth(70);
     }
+    public static boolean tratarSessaoEncerrada(Throwable erro) {
+        if (!(erro instanceof SecurityException)
+                || br.com.assistencia.controller.Sessao.estaAutenticado()) return false;
+        // Outros SwingWorkers podem terminar enquanto o aviso modal está aberto.
+        if (encerrandoSessao) return true;
+        encerrandoSessao = true;
+        try {
+            TelaLogin login = null;
+            for (java.awt.Frame janela : java.awt.Frame.getFrames()) {
+                if (janela instanceof TelaGerenciada) janela.dispose();
+                else if (janela instanceof TelaLogin existente && existente.isDisplayable()) login = existente;
+            }
+            if (login == null) {
+                login = new TelaLogin();
+                login.setVisible(true);
+                JOptionPane.showMessageDialog(login, erro.getMessage(), "Sessão encerrada", JOptionPane.WARNING_MESSAGE);
+            }
+            login.toFront();
+        } finally {
+            encerrandoSessao = false;
+        }
+        return true;
+    }
+
     public static void erro(java.awt.Component pai, Throwable erro) {
+        if (tratarSessaoEncerrada(erro)) return;
         java.util.logging.Logger.getLogger(Formularios.class.getName()).log(java.util.logging.Level.WARNING, "Falha na operação", erro);
         String mensagem = erro.getMessage();
         if (erro instanceof java.sql.SQLException sql) {

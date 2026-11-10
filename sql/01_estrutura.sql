@@ -6,7 +6,7 @@ USE assistencia_tecnica;
 CREATE TABLE IF NOT EXISTS cliente (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(120) NOT NULL,
-    telefone VARCHAR(25) NOT NULL,
+    telefone VARCHAR(25),
     email VARCHAR(254)
 ) ENGINE = InnoDB;
 
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS categoria_equipamento (
 
 CREATE TABLE IF NOT EXISTS equipamento (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    categoria_id INT NOT NULL,
-    marca VARCHAR(80) NOT NULL,
+    categoria_id INT,
+    marca VARCHAR(80),
     modelo VARCHAR(120) NOT NULL,
     numero_serie VARCHAR(100),
     CONSTRAINT fk_equipamento_categoria FOREIGN KEY (categoria_id)
@@ -58,6 +58,12 @@ CREATE TABLE IF NOT EXISTS ordem_servico (
     INDEX idx_ordem_data_abertura (data_abertura)
 ) ENGINE = InnoDB;
 
+-- Atualiza tambem bancos que ja possuem as tabelas.
+-- CREATE TABLE IF NOT EXISTS preserva uma tabela existente sem mudar suas colunas.
+-- Estes ajustes permitem cadastrar cliente e equipamento apenas pelo nome na OS.
+ALTER TABLE cliente MODIFY telefone VARCHAR(25) NULL;
+ALTER TABLE equipamento MODIFY categoria_id INT NULL, MODIFY marca VARCHAR(80) NULL;
+
 -- A listagem e o relatório compartilham a mesma consulta com JOIN.
 CREATE OR REPLACE VIEW vw_ordens_servico AS
 SELECT os.id AS numero_os,
@@ -77,4 +83,4 @@ FROM ordem_servico AS os
 INNER JOIN cliente AS c ON c.id = os.cliente_id
 INNER JOIN tecnico AS t ON t.id = os.tecnico_id
 INNER JOIN equipamento AS e ON e.id = os.equipamento_id
-INNER JOIN categoria_equipamento AS ce ON ce.id = e.categoria_id;
+LEFT JOIN categoria_equipamento AS ce ON ce.id = e.categoria_id;

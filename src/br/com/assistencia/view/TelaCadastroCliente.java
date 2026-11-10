@@ -21,7 +21,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame implements TelaGeren
     public TelaCadastroCliente() {
         br.com.assistencia.controller.Sessao.exigirAutenticacao();
         initComponents();
-        getContentPane().setBackground(java.awt.Color.WHITE);
+        EstiloVisual.aplicar(this);
         tabelaClientes.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tabelaClientes.getTableHeader().setReorderingAllowed(false);
         tabelaClientes.getColumnModel().getColumn(0).setMaxWidth(75);
@@ -69,7 +69,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame implements TelaGeren
         }
         idSelecionado = cliente.getId();
         nomeOriginal = cliente.getNome();
-        telefoneOriginal = cliente.getTelefone();
+        telefoneOriginal = cliente.getTelefone() == null ? "" : cliente.getTelefone();
         emailOriginal = cliente.getEmail() == null ? "" : cliente.getEmail();
         txtNome.setText(nomeOriginal);
         txtTelefone.setText(telefoneOriginal);
@@ -228,6 +228,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame implements TelaGeren
     }
 
     private void mostrarErro(Throwable erro) {
+        if (Formularios.tratarSessaoEncerrada(erro)) return;
         logger.log(java.util.logging.Level.WARNING, "Falha no cadastro de clientes", erro);
         String mensagem = erro.getMessage();
         if (erro instanceof java.sql.SQLException sql) {
@@ -252,78 +253,117 @@ public class TelaCadastroCliente extends javax.swing.JFrame implements TelaGeren
         lblTitulo = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
         separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
         lblModo = new javax.swing.JLabel();
         lblNome = new javax.swing.JLabel();
+        lblNome.setForeground(new java.awt.Color(40, 47, 56));
         txtNome = new javax.swing.JTextField();
+        txtNome.setBackground(new java.awt.Color(255, 255, 255));
+        txtNome.setForeground(new java.awt.Color(40, 47, 56));
         lblTelefone = new javax.swing.JLabel();
+        lblTelefone.setForeground(new java.awt.Color(40, 47, 56));
         txtTelefone = new javax.swing.JTextField();
+        txtTelefone.setBackground(new java.awt.Color(255, 255, 255));
+        txtTelefone.setForeground(new java.awt.Color(40, 47, 56));
         lblEmail = new javax.swing.JLabel();
+        lblEmail.setForeground(new java.awt.Color(40, 47, 56));
         txtEmail = new javax.swing.JTextField();
+        txtEmail.setBackground(new java.awt.Color(255, 255, 255));
+        txtEmail.setForeground(new java.awt.Color(40, 47, 56));
         lblAjuda = new javax.swing.JLabel();
         btnNovo = new javax.swing.JButton();
+        btnNovo.setOpaque(true);
+        btnNovo.setContentAreaFilled(false);
+        btnNovo.setBackground(new java.awt.Color(255, 255, 255));
+        btnNovo.setForeground(new java.awt.Color(40, 47, 56));
+        btnNovo.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnSalvar = new javax.swing.JButton();
+        btnSalvar.setOpaque(true);
+        btnSalvar.setContentAreaFilled(false);
         btnEditar = new javax.swing.JButton();
+        btnEditar.setOpaque(true);
+        btnEditar.setContentAreaFilled(false);
+        btnEditar.setBackground(new java.awt.Color(255, 255, 255));
+        btnEditar.setForeground(new java.awt.Color(40, 47, 56));
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnExcluir = new javax.swing.JButton();
+        btnExcluir.setOpaque(true);
+        btnExcluir.setContentAreaFilled(false);
+        btnExcluir.setBackground(new java.awt.Color(255, 255, 255));
+        btnExcluir.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnAtualizar = new javax.swing.JButton();
+        btnAtualizar.setOpaque(true);
+        btnAtualizar.setContentAreaFilled(false);
+        btnAtualizar.setBackground(new java.awt.Color(255, 255, 255));
+        btnAtualizar.setForeground(new java.awt.Color(40, 47, 56));
+        btnAtualizar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnFechar = new javax.swing.JButton();
+        btnFechar.setOpaque(true);
+        btnFechar.setContentAreaFilled(false);
+        btnFechar.setBackground(new java.awt.Color(255, 255, 255));
+        btnFechar.setForeground(new java.awt.Color(40, 47, 56));
+        btnFechar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblListagem = new javax.swing.JLabel();
         scrollClientes = new javax.swing.JScrollPane();
         lblStatus = new javax.swing.JLabel();
         tabelaClientes = new javax.swing.JTable();
+        tabelaClientes.setBackground(new java.awt.Color(255, 255, 255));
+        tabelaClientes.setForeground(new java.awt.Color(40, 47, 56));
 
         setDefaultCloseOperation(0);
         setTitle("Clientes | Assistência Técnica");
         setMinimumSize(new java.awt.Dimension(940, 700));
         setPreferredSize(new java.awt.Dimension(1000, 760));
         lblTitulo.setText("Clientes");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 28));
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22));
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
         lblDescricao.setText("Cadastre e mantenha os contatos de quem solicita os serviços.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblDescricao.setForeground(new java.awt.Color(91, 105, 124));
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
         lblModo.setText("Novo cliente");
-        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblModo.setForeground(new java.awt.Color(25, 42, 64));
+        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblModo.setForeground(new java.awt.Color(40, 47, 56));
         lblNome.setText("Nome *");
-        lblNome.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        txtNome.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblNome.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        txtNome.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtNome.setToolTipText("Nome do cliente, até 120 caracteres.");
-        lblTelefone.setText("Telefone *");
-        lblTelefone.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        txtTelefone.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblTelefone.setText("Telefone");
+        lblTelefone.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        txtTelefone.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtTelefone.setToolTipText("Informe o telefone com DDD.");
         lblEmail.setText("E-mail");
-        lblEmail.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblAjuda.setText("* Campos obrigatórios. O e-mail é opcional.");
+        lblEmail.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblAjuda.setText("O nome é obrigatório. Telefone e e-mail são opcionais.");
         lblAjuda.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblAjuda.setForeground(new java.awt.Color(91, 105, 124));
+        lblAjuda.setForeground(new java.awt.Color(102, 111, 123));
         btnNovo.setText("Novo");
         btnNovo.setToolTipText("Limpa os campos para iniciar um novo cadastro.");
         btnNovo.addActionListener(this::btnNovoActionPerformed);
         btnSalvar.setText("Salvar cliente");
-        btnSalvar.setBackground(new java.awt.Color(34, 76, 125));
+        btnSalvar.setBackground(new java.awt.Color(43, 76, 110));
         btnSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btnSalvar.setFont(new java.awt.Font("Segoe UI", 1, 13));
         btnSalvar.addActionListener(this::btnSalvarActionPerformed);
         btnEditar.setText("Editar selecionado");
         btnEditar.addActionListener(this::btnEditarActionPerformed);
         btnExcluir.setText("Excluir selecionado");
-        btnExcluir.setForeground(new java.awt.Color(164, 40, 48));
+        btnExcluir.setForeground(new java.awt.Color(167, 49, 49));
         btnExcluir.addActionListener(this::btnExcluirActionPerformed);
         btnAtualizar.setText("Atualizar lista");
         btnAtualizar.addActionListener(this::btnAtualizarActionPerformed);
         btnFechar.setText("Fechar");
         btnFechar.addActionListener(this::btnFecharActionPerformed);
         lblListagem.setText("Clientes cadastrados");
-        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblListagem.setForeground(new java.awt.Color(25, 42, 64));
+        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblListagem.setForeground(new java.awt.Color(40, 47, 56));
         lblStatus.setText("Carregando clientes...");
         lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblStatus.setForeground(new java.awt.Color(91, 105, 124));
+        lblStatus.setForeground(new java.awt.Color(102, 111, 123));
 
         tabelaClientes.setAutoCreateRowSorter(true);
-        tabelaClientes.setRowHeight(30);
+        tabelaClientes.setRowHeight(28);
         tabelaClientes.setShowVerticalLines(false);
         tabelaClientes.setFillsViewportHeight(true);
         tabelaClientes.setFont(new java.awt.Font("Segoe UI", 0, 13));
@@ -376,7 +416,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame implements TelaGeren
         layout.setVerticalGroup(
             layout.createSequentialGroup()
             .addGap(24, 24, 24)
-            .addComponent(lblTitulo, -2, 36, 36)
+            .addComponent(lblTitulo, -2, 32, 32)
             .addGap(4, 4, 4)
             .addComponent(lblDescricao, -2, 22, 22)
             .addGap(18, 18, 18)
@@ -386,15 +426,15 @@ public class TelaCadastroCliente extends javax.swing.JFrame implements TelaGeren
             .addGap(14, 14, 14)
             .addComponent(lblNome, -2, 20, 20)
             .addGap(6, 6, 6)
-            .addComponent(txtNome, -2, 36, 36)
+            .addComponent(txtNome, -2, 34, 34)
             .addGap(12, 12, 12)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addComponent(lblTelefone, -2, 20, 20)
                 .addComponent(lblEmail, -2, 20, 20))
             .addGap(6, 6, 6)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(txtTelefone, -2, 36, 36)
-                .addComponent(txtEmail, -2, 36, 36))
+                .addComponent(txtTelefone, -2, 34, 34)
+                .addComponent(txtEmail, -2, 34, 34))
             .addGap(8, 8, 8)
             .addComponent(lblAjuda, -2, 18, 18)
             .addGap(18, 18, 18)

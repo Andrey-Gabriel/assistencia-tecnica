@@ -12,7 +12,7 @@ public class TelaCadastroCategoria extends javax.swing.JFrame implements TelaGer
     public TelaCadastroCategoria() {
         Sessao.exigirAutenticacao();
         initComponents();
-        getContentPane().setBackground(java.awt.Color.WHITE);
+        EstiloVisual.aplicar(this);
         Formularios.tabela(tabelaRegistros, Integer.class, String.class);
         suporte = new CadastroSuporte<Categoria>(this, tabelaRegistros, lblModo, lblStatus,
                 btnNovo, btnSalvar, btnEditar, btnExcluir, btnAtualizar, btnFechar, txtNome) {
@@ -63,45 +63,78 @@ public class TelaCadastroCategoria extends javax.swing.JFrame implements TelaGer
         lblTitulo = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
         separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
         lblModo = new javax.swing.JLabel();
         lblTxtNome = new javax.swing.JLabel();
         txtNome = new javax.swing.JTextField();
+        txtNome.setBackground(new java.awt.Color(255, 255, 255));
+        txtNome.setForeground(new java.awt.Color(40, 47, 56));
         lblAjuda = new javax.swing.JLabel();
         btnNovo = new javax.swing.JButton();
+        btnNovo.setOpaque(true);
+        btnNovo.setContentAreaFilled(false);
+        btnNovo.setBackground(new java.awt.Color(255, 255, 255));
+        btnNovo.setForeground(new java.awt.Color(40, 47, 56));
+        btnNovo.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnSalvar = new javax.swing.JButton();
+        btnSalvar.setOpaque(true);
+        btnSalvar.setContentAreaFilled(false);
         btnEditar = new javax.swing.JButton();
+        btnEditar.setOpaque(true);
+        btnEditar.setContentAreaFilled(false);
+        btnEditar.setBackground(new java.awt.Color(255, 255, 255));
+        btnEditar.setForeground(new java.awt.Color(40, 47, 56));
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnExcluir = new javax.swing.JButton();
+        btnExcluir.setOpaque(true);
+        btnExcluir.setContentAreaFilled(false);
+        btnExcluir.setBackground(new java.awt.Color(255, 255, 255));
+        btnExcluir.setForeground(new java.awt.Color(167, 49, 49));
+        btnExcluir.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnAtualizar = new javax.swing.JButton();
+        btnAtualizar.setOpaque(true);
+        btnAtualizar.setContentAreaFilled(false);
+        btnAtualizar.setBackground(new java.awt.Color(255, 255, 255));
+        btnAtualizar.setForeground(new java.awt.Color(40, 47, 56));
+        btnAtualizar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnFechar = new javax.swing.JButton();
+        btnFechar.setOpaque(true);
+        btnFechar.setContentAreaFilled(false);
+        btnFechar.setBackground(new java.awt.Color(255, 255, 255));
+        btnFechar.setForeground(new java.awt.Color(40, 47, 56));
+        btnFechar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblListagem = new javax.swing.JLabel();
         scrollRegistros = new javax.swing.JScrollPane();
         tabelaRegistros = new javax.swing.JTable();
+        tabelaRegistros.setBackground(new java.awt.Color(255, 255, 255));
+        tabelaRegistros.setForeground(new java.awt.Color(40, 47, 56));
         lblStatus = new javax.swing.JLabel();
         setDefaultCloseOperation(0);
         setTitle("Categorias | Assistência Técnica");
         setMinimumSize(new java.awt.Dimension(940, 580));
         setPreferredSize(new java.awt.Dimension(1000, 630));
         lblTitulo.setText("Categorias");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 28));
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22));
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
         lblDescricao.setText("Organize os tipos de equipamentos atendidos pela assistência.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblDescricao.setForeground(new java.awt.Color(25, 42, 64));
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
         lblModo.setText("Nova categoria");
-        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblModo.setForeground(new java.awt.Color(25, 42, 64));
+        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblModo.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtNome.setText("Nome da categoria *");
-        lblTxtNome.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtNome.setForeground(new java.awt.Color(25, 42, 64));
-        txtNome.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblTxtNome.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtNome.setForeground(new java.awt.Color(40, 47, 56));
+        txtNome.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblAjuda.setText("Informe um nome de até 80 caracteres. Novo limpa os campos; Salvar grava o cadastro.");
         lblAjuda.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblAjuda.setForeground(new java.awt.Color(25, 42, 64));
+        lblAjuda.setForeground(new java.awt.Color(102, 111, 123));
         btnNovo.setText("Novo");
         btnNovo.addActionListener(this::btnNovoActionPerformed);
         btnSalvar.setText("Salvar");
         btnSalvar.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        btnSalvar.setBackground(new java.awt.Color(34, 76, 125));
+        btnSalvar.setBackground(new java.awt.Color(43, 76, 110));
         btnSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btnSalvar.addActionListener(this::btnSalvarActionPerformed);
         btnEditar.setText("Editar selecionado");
@@ -113,11 +146,11 @@ public class TelaCadastroCategoria extends javax.swing.JFrame implements TelaGer
         btnFechar.setText("Fechar");
         btnFechar.addActionListener(this::btnFecharActionPerformed);
         lblListagem.setText("Categorias cadastradas");
-        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblListagem.setForeground(new java.awt.Color(25, 42, 64));
+        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblListagem.setForeground(new java.awt.Color(40, 47, 56));
         scrollRegistros.setViewportView(tabelaRegistros);
         tabelaRegistros.setAutoCreateRowSorter(true);
-        tabelaRegistros.setRowHeight(30);
+        tabelaRegistros.setRowHeight(28);
         tabelaRegistros.setShowVerticalLines(false);
         tabelaRegistros.setFillsViewportHeight(true);
         tabelaRegistros.setFont(new java.awt.Font("Segoe UI", 0, 13));
@@ -126,7 +159,7 @@ public class TelaCadastroCategoria extends javax.swing.JFrame implements TelaGer
         });
         lblStatus.setText("Carregando cadastros...");
         lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblStatus.setForeground(new java.awt.Color(25, 42, 64));
+        lblStatus.setForeground(new java.awt.Color(102, 111, 123));
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -164,7 +197,7 @@ public class TelaCadastroCategoria extends javax.swing.JFrame implements TelaGer
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(lblTitulo, -2, 36, 36)
+                .addComponent(lblTitulo, -2, 32, 32)
                 .addGap(4, 4, 4)
                 .addComponent(lblDescricao, -2, 22, 22)
                 .addGap(16, 16, 16)

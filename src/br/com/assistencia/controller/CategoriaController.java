@@ -29,7 +29,7 @@ public class CategoriaController {
     }
 
     public void cadastrar(String nome) throws SQLException {
-        Sessao.exigirAutenticacao();
+        Sessao.validarAcesso();
         nome = validarNome(nome);
 
         Categoria categoria = new Categoria();
@@ -39,12 +39,12 @@ public class CategoriaController {
     }
 
     public List<Categoria> listar() throws SQLException {
-        Sessao.exigirAutenticacao();
+        Sessao.validarAcesso();
         return dao.listar();
     }
 
     public void atualizar(int id, String nome) throws SQLException {
-        Sessao.exigirAutenticacao();
+        Sessao.validarAcesso();
         validarId(id);
         nome = validarNome(nome);
 
@@ -53,7 +53,7 @@ public class CategoriaController {
     }
 
     public void excluir(int id) throws SQLException {
-        Sessao.exigirAutenticacao();
+        Sessao.validarAcesso();
         validarId(id);
         dao.excluir(id);
     }

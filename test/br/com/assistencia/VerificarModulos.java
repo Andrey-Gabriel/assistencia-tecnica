@@ -101,8 +101,8 @@ final class VerificarModulos {
         conferir(categorias.listar().stream().anyMatch(c -> c.getId() == categoriaId && c.getNome().endsWith("editada")), "Edição de categoria falhou");
 
         Equipamento aparelho = new Equipamento(0, categoriaId, " Marca teste ", prefixo, " ");
-        Equipamento invalido = new Equipamento(0, 0, "Marca", "Modelo", "");
-        invalido(() -> equipamentos.salvar(invalido), "Aceitou equipamento sem categoria");
+        Equipamento invalido = new Equipamento(0, 0, "Marca", " ", "");
+        invalido(() -> equipamentos.salvar(invalido), "Aceitou equipamento sem nome/modelo");
         equipamentos.salvar(aparelho);
         aparelho = equipamentos.listar().stream().filter(e -> e.getModelo().equals(prefixo)).findFirst().orElseThrow();
         int equipamentoId = aparelho.getId();
@@ -185,12 +185,15 @@ final class VerificarModulos {
 
         edt(() -> telas[2] = new TelaOrdensServico()); aguardarNova(telas[2]);
         edt(() -> {
-            escolher(telas[2], "cmbCliente", clienteId); escolher(telas[2], "cmbTecnico", tecnicoId);
-            escolher(telas[2], "cmbEquipamento", equipamentoTela); texto(telas[2], "txtDefeito", prefixo + " OS tela");
+            texto(telas[2], "txtCliente", prefixo + " cliente da tela"); escolher(telas[2], "cmbTecnico", tecnicoId);
+            texto(telas[2], "txtEquipamento", prefixo + " aparelho da tela"); texto(telas[2], "txtDefeito", prefixo + " OS tela");
             texto(telas[2], "txtValor", "89,90"); clique(telas[2], "btnSalvar");
         }); aguardarNova(telas[2]);
         OrdemServico osTela = ordem(ordens, prefixo + " OS tela"); idsOrdens.add(osTela.getId());
-        conferir(osTela.getEquipamentoId() == equipamentoTela && osTela.getValorServico().compareTo(new BigDecimal("89.90")) == 0, "OS da tela gravou IDs ou valor incorretos");
+        conferir(osTela.getEquipamentoId() > 0 && osTela.getClienteId() > 0
+                && osTela.getEquipamentoModelo().equals(prefixo + " aparelho da tela")
+                && osTela.getValorServico().compareTo(new BigDecimal("89.90")) == 0,
+                "OS da tela não cadastrou os nomes ou gravou valor incorreto");
         edt(() -> {
             selecionar(telas[2], osTela.getId()); clique(telas[2], "btnEditar");
             ((JComboBox<?>) campo(telas[2], "cmbStatus")).setSelectedItem(StatusOrdem.ENTREGUE);
@@ -209,6 +212,7 @@ final class VerificarModulos {
             for (JFrame janela : telas) ((TelaGerenciada) janela).fecharComConfirmacao();
         });
         for (int id : idsOrdens) ordens.excluir(id);
+        equipamentos.excluir(osTela.getEquipamentoId()); clientes.excluir(osTela.getClienteId());
         equipamentos.excluir(equipamentoTela); equipamentos.excluir(equipamentoId);
         categorias.excluir(categoriaId); clientes.excluir(clienteId); tecnicos.excluir(tecnicoId);
         System.out.println("OK: telas novas, Novo com confirmação, IDs nos combos, encerramento pela tela e relatório integrado.");

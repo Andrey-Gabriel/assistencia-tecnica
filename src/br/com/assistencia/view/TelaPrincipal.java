@@ -12,15 +12,20 @@ public class TelaPrincipal extends javax.swing.JFrame implements TelaGerenciada 
         Sessao.exigirAutenticacao();
         initComponents();
         boolean admin = Sessao.ehAdministrador();
-        btnTecnicos.setVisible(admin); lblTecnicos.setVisible(admin); menuTecnicos.setVisible(admin);
+        btnTecnicos.setVisible(admin); menuTecnicos.setVisible(admin);
         lblRodape.setText("Conectado: " + Sessao.nomeTecnico() + (admin ? " | Administrador" : " | Técnico"));
-        getContentPane().setBackground(new java.awt.Color(246, 248, 252));
+        EstiloVisual.aplicar(this);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override public void windowClosing(java.awt.event.WindowEvent e) { fecharComConfirmacao(); }
         });
     }
     private void abrir(String chave, java.util.function.Supplier<? extends javax.swing.JFrame> fabrica) {
-        Sessao.exigirAutenticacao();
+        try {
+            Sessao.exigirAutenticacao();
+        } catch (SecurityException e) {
+            Formularios.erro(this, e);
+            return;
+        }
         javax.swing.JFrame janela = janelas.get(chave);
         if (janela == null || !janela.isDisplayable()) {
             javax.swing.JFrame nova = fabrica.get();
@@ -96,87 +101,122 @@ public class TelaPrincipal extends javax.swing.JFrame implements TelaGerenciada 
     }//GEN-LAST:event_menuSairActionPerformed
 
 
+    private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
+        menuSairActionPerformed(evt);
+    }//GEN-LAST:event_btnSairActionPerformed
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        lblTitulo = new javax.swing.JLabel();
+        lblDescricao = new javax.swing.JLabel();
+        separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        lblAtendimento = new javax.swing.JLabel();
+        btnOrdens = new javax.swing.JButton();
+        btnRelatorio = new javax.swing.JButton();
+        separadorCadastros = new javax.swing.JSeparator();
+        separadorCadastros.setBackground(new java.awt.Color(246, 247, 249));
+        lblCadastros = new javax.swing.JLabel();
+        btnClientes = new javax.swing.JButton();
+        btnCategorias = new javax.swing.JButton();
+        btnEquipamentos = new javax.swing.JButton();
+        btnTecnicos = new javax.swing.JButton();
+        separadorRodape = new javax.swing.JSeparator();
+        separadorRodape.setBackground(new java.awt.Color(246, 247, 249));
+        lblRodape = new javax.swing.JLabel();
+        btnSair = new javax.swing.JButton();
         barraMenu = new javax.swing.JMenuBar();
+        barraMenu.setBackground(new java.awt.Color(255, 255, 255));
+        barraMenu.setForeground(new java.awt.Color(40, 47, 56));
+        barraMenu.setFont(new java.awt.Font("Segoe UI", 0, 13));
         menuCadastros = new javax.swing.JMenu();
         menuClientes = new javax.swing.JMenuItem();
         menuCategorias = new javax.swing.JMenuItem();
         menuEquipamentos = new javax.swing.JMenuItem();
         menuTecnicos = new javax.swing.JMenuItem();
         menuAtendimento = new javax.swing.JMenu();
+        menuAtendimento.setBackground(new java.awt.Color(255, 255, 255));
+        menuAtendimento.setForeground(new java.awt.Color(40, 47, 56));
+        menuAtendimento.setFont(new java.awt.Font("Segoe UI", 0, 13));
         menuOrdens = new javax.swing.JMenuItem();
         menuRelatorio = new javax.swing.JMenuItem();
         menuSistema = new javax.swing.JMenu();
+        menuSistema.setBackground(new java.awt.Color(255, 255, 255));
+        menuSistema.setForeground(new java.awt.Color(40, 47, 56));
+        menuSistema.setFont(new java.awt.Font("Segoe UI", 0, 13));
         menuSair = new javax.swing.JMenuItem();
-
-        lblTitulo = new javax.swing.JLabel();
-        lblDescricao = new javax.swing.JLabel();
-        separador = new javax.swing.JSeparator();
-        lblSecao = new javax.swing.JLabel();
-        btnClientes = new javax.swing.JButton();
-        lblClientes = new javax.swing.JLabel();
-        btnCategorias = new javax.swing.JButton();
-        lblCategorias = new javax.swing.JLabel();
-        btnEquipamentos = new javax.swing.JButton();
-        lblEquipamentos = new javax.swing.JLabel();
-        btnOrdens = new javax.swing.JButton();
-        lblOrdens = new javax.swing.JLabel();
-        btnRelatorio = new javax.swing.JButton();
-        lblRelatorio = new javax.swing.JLabel();
-        btnTecnicos = new javax.swing.JButton();
-        lblTecnicos = new javax.swing.JLabel();
-        lblRodape = new javax.swing.JLabel();
         setDefaultCloseOperation(0);
-        setTitle("Assistência Técnica | Assistência Técnica");
-        setMinimumSize(new java.awt.Dimension(1040, 580));
-        setPreferredSize(new java.awt.Dimension(1120, 620));
+        setTitle("Assistência Técnica");
+        setMinimumSize(new java.awt.Dimension(800, 460));
+        setPreferredSize(new java.awt.Dimension(840, 480));
         lblTitulo.setText("Assistência Técnica");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 30));
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
-        lblDescricao.setText("Organize os aparelhos, os cadastros e os atendimentos.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblDescricao.setForeground(new java.awt.Color(25, 42, 64));
-        lblSecao.setText("ATENDIMENTO E CADASTROS");
-        lblSecao.setFont(new java.awt.Font("Segoe UI", 1, 12));
-        lblSecao.setForeground(new java.awt.Color(25, 42, 64));
-        btnClientes.setText("Gerenciar clientes");
-        btnClientes.addActionListener(this::btnClientesActionPerformed);
-        lblClientes.setText("Dados e contatos dos clientes.");
-        lblClientes.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblClientes.setForeground(new java.awt.Color(25, 42, 64));
-        btnCategorias.setText("Categorias");
-        btnCategorias.addActionListener(this::btnCategoriasActionPerformed);
-        lblCategorias.setText("Tipos de aparelhos atendidos.");
-        lblCategorias.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblCategorias.setForeground(new java.awt.Color(25, 42, 64));
-        btnEquipamentos.setText("Equipamentos");
-        btnEquipamentos.addActionListener(this::btnEquipamentosActionPerformed);
-        lblEquipamentos.setText("Identificação dos aparelhos.");
-        lblEquipamentos.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblEquipamentos.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22));
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
+        lblDescricao.setText("Menu principal");
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
+        lblAtendimento.setText("Atendimento");
+        lblAtendimento.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblAtendimento.setForeground(new java.awt.Color(40, 47, 56));
         btnOrdens.setText("Ordens de serviço");
         btnOrdens.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        btnOrdens.setBackground(new java.awt.Color(34, 76, 125));
+        btnOrdens.setBackground(new java.awt.Color(43, 76, 110));
         btnOrdens.setForeground(new java.awt.Color(255, 255, 255));
+        btnOrdens.setContentAreaFilled(false);
+        btnOrdens.setOpaque(true);
         btnOrdens.addActionListener(this::btnOrdensActionPerformed);
-        lblOrdens.setText("Abertura e andamento dos serviços.");
-        lblOrdens.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblOrdens.setForeground(new java.awt.Color(25, 42, 64));
         btnRelatorio.setText("Relatório por período");
+        btnRelatorio.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        btnRelatorio.setBackground(new java.awt.Color(255, 255, 255));
+        btnRelatorio.setForeground(new java.awt.Color(40, 47, 56));
+        btnRelatorio.setContentAreaFilled(false);
+        btnRelatorio.setOpaque(true);
         btnRelatorio.addActionListener(this::btnRelatorioActionPerformed);
-        lblRelatorio.setText("Consulta e valores por período.");
-        lblRelatorio.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblRelatorio.setForeground(new java.awt.Color(25, 42, 64));
-        btnTecnicos.setText("Gerenciar técnicos");
+        separadorCadastros.setForeground(new java.awt.Color(201, 207, 216));
+        lblCadastros.setText("Cadastros");
+        lblCadastros.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblCadastros.setForeground(new java.awt.Color(40, 47, 56));
+        btnClientes.setText("Clientes");
+        btnClientes.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        btnClientes.setBackground(new java.awt.Color(255, 255, 255));
+        btnClientes.setForeground(new java.awt.Color(40, 47, 56));
+        btnClientes.setContentAreaFilled(false);
+        btnClientes.setOpaque(true);
+        btnClientes.addActionListener(this::btnClientesActionPerformed);
+        btnCategorias.setText("Categorias");
+        btnCategorias.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        btnCategorias.setBackground(new java.awt.Color(255, 255, 255));
+        btnCategorias.setForeground(new java.awt.Color(40, 47, 56));
+        btnCategorias.setContentAreaFilled(false);
+        btnCategorias.setOpaque(true);
+        btnCategorias.addActionListener(this::btnCategoriasActionPerformed);
+        btnEquipamentos.setText("Equipamentos");
+        btnEquipamentos.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        btnEquipamentos.setBackground(new java.awt.Color(255, 255, 255));
+        btnEquipamentos.setForeground(new java.awt.Color(40, 47, 56));
+        btnEquipamentos.setContentAreaFilled(false);
+        btnEquipamentos.setOpaque(true);
+        btnEquipamentos.addActionListener(this::btnEquipamentosActionPerformed);
+        btnTecnicos.setText("Técnicos");
+        btnTecnicos.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        btnTecnicos.setBackground(new java.awt.Color(255, 255, 255));
+        btnTecnicos.setForeground(new java.awt.Color(40, 47, 56));
+        btnTecnicos.setContentAreaFilled(false);
+        btnTecnicos.setOpaque(true);
         btnTecnicos.addActionListener(this::btnTecnicosActionPerformed);
-        lblTecnicos.setText("Usuários, senhas e perfis.");
-        lblTecnicos.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblTecnicos.setForeground(new java.awt.Color(25, 42, 64));
+        separadorRodape.setForeground(new java.awt.Color(201, 207, 216));
         lblRodape.setText("Conectado");
         lblRodape.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblRodape.setForeground(new java.awt.Color(25, 42, 64));
+        lblRodape.setForeground(new java.awt.Color(102, 111, 123));
+        btnSair.setText("Sair da conta");
+        btnSair.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        btnSair.setBackground(new java.awt.Color(255, 255, 255));
+        btnSair.setForeground(new java.awt.Color(40, 47, 56));
+        btnSair.setContentAreaFilled(false);
+        btnSair.setOpaque(true);
+        btnSair.addActionListener(this::btnSairActionPerformed);
         menuCadastros.setText("Cadastros");
         menuClientes.setText("Clientes");
         menuClientes.addActionListener(this::menuClientesActionPerformed);
@@ -205,73 +245,72 @@ public class TelaPrincipal extends javax.swing.JFrame implements TelaGerenciada 
         menuSistema.add(menuSair);
         barraMenu.add(menuSistema);
         setJMenuBar(barraMenu);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(32, 32, 32)
+                .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblTitulo, -2, -2, -2)
                     .addComponent(lblDescricao, -2, -2, -2)
                     .addComponent(separador, 0, -1, 32767)
-                    .addComponent(lblSecao, -2, -2, -2)
+                    .addComponent(lblAtendimento, -2, -2, -2)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnOrdens, 0, 360, 32767)
+                        .addGap(12, 12, 12)
+                        .addComponent(btnRelatorio, 0, 360, 32767))
+                    .addComponent(separadorCadastros, 0, -1, 32767)
+                    .addComponent(lblCadastros, -2, -2, -2)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnClientes, 0, 300, 32767)
-                            .addComponent(lblClientes, 0, 300, 32767)
-                            .addComponent(btnOrdens, 0, 300, 32767)
-                            .addComponent(lblOrdens, 0, 300, 32767))
-                        .addGap(22, 22, 22)
+                            .addComponent(btnClientes, 0, 360, 32767)
+                            .addComponent(btnEquipamentos, 0, 360, 32767))
+                        .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnCategorias, 0, 300, 32767)
-                            .addComponent(lblCategorias, 0, 300, 32767)
-                            .addComponent(btnRelatorio, 0, 300, 32767)
-                            .addComponent(lblRelatorio, 0, 300, 32767))
-                        .addGap(22, 22, 22)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnEquipamentos, 0, 300, 32767)
-                            .addComponent(lblEquipamentos, 0, 300, 32767)
-                            .addComponent(btnTecnicos, 0, 300, 32767)
-                            .addComponent(lblTecnicos, 0, 300, 32767)))
-                    .addComponent(lblRodape, 0, -1, 32767))
-                .addGap(32, 32, 32))
+                            .addComponent(btnCategorias, 0, 360, 32767)
+                            .addComponent(btnTecnicos, 0, 360, 32767)))
+                    .addComponent(separadorRodape, 0, -1, 32767)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblRodape, 0, -1, 32767)
+                        .addGap(16, 16, 16)
+                        .addComponent(btnSair, -2, 120, 120)))
+                .addGap(28, 28, 28))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addComponent(lblTitulo, -2, 42, 42)
-                .addGap(6, 6, 6)
-                .addComponent(lblDescricao, -2, 22, 22)
-                .addGap(22, 22, 22)
-                .addComponent(separador, -2, 2, 2)
-                .addGap(22, 22, 22)
-                .addComponent(lblSecao, -2, 20, 20)
-                .addGap(16, 16, 16)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnClientes, -2, 70, 70)
-                    .addComponent(btnCategorias, -2, 70, 70)
-                    .addComponent(btnEquipamentos, -2, 70, 70))
+                .addGap(20, 20, 20)
+                .addComponent(lblTitulo, -2, 32, 32)
+                .addGap(4, 4, 4)
+                .addComponent(lblDescricao, -2, 18, 18)
+                .addGap(12, 12, 12)
+                .addComponent(separador, -2, 1, 1)
+                .addGap(14, 14, 14)
+                .addComponent(lblAtendimento, -2, 20, 20)
                 .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblClientes, -2, 24, 24)
-                    .addComponent(lblCategorias, -2, 24, 24)
-                    .addComponent(lblEquipamentos, -2, 24, 24))
-                .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnOrdens, -2, 70, 70)
-                    .addComponent(btnRelatorio, -2, 70, 70)
-                    .addComponent(btnTecnicos, -2, 70, 70))
+                    .addComponent(btnOrdens, -2, 36, 36)
+                    .addComponent(btnRelatorio, -2, 36, 36))
+                .addGap(18, 18, 18)
+                .addComponent(separadorCadastros, -2, 1, 1)
+                .addGap(14, 14, 14)
+                .addComponent(lblCadastros, -2, 20, 20)
                 .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblOrdens, -2, 24, 24)
-                    .addComponent(lblRelatorio, -2, 24, 24)
-                    .addComponent(lblTecnicos, -2, 24, 24))
-                .addGap(30, 30, 32767)
-                .addComponent(lblRodape, -2, 20, 20)
-                .addGap(26, 26, 26))
+                    .addComponent(btnClientes, -2, 36, 36)
+                    .addComponent(btnCategorias, -2, 36, 36))
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnEquipamentos, -2, 36, 36)
+                    .addComponent(btnTecnicos, -2, 36, 36))
+                .addGap(20, 20, 32767)
+                .addComponent(separadorRodape, -2, 1, 1)
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblRodape, -2, 32, 32)
+                    .addComponent(btnSair, -2, 32, 32))
+                .addGap(20, 20, 20))
         );
         pack();
         setLocationRelativeTo(null);
@@ -283,20 +322,18 @@ public class TelaPrincipal extends javax.swing.JFrame implements TelaGerenciada 
     private javax.swing.JLabel lblTitulo;
     private javax.swing.JLabel lblDescricao;
     private javax.swing.JSeparator separador;
-    private javax.swing.JLabel lblSecao;
-    private javax.swing.JButton btnClientes;
-    private javax.swing.JLabel lblClientes;
-    private javax.swing.JButton btnCategorias;
-    private javax.swing.JLabel lblCategorias;
-    private javax.swing.JButton btnEquipamentos;
-    private javax.swing.JLabel lblEquipamentos;
+    private javax.swing.JLabel lblAtendimento;
     private javax.swing.JButton btnOrdens;
-    private javax.swing.JLabel lblOrdens;
     private javax.swing.JButton btnRelatorio;
-    private javax.swing.JLabel lblRelatorio;
+    private javax.swing.JSeparator separadorCadastros;
+    private javax.swing.JLabel lblCadastros;
+    private javax.swing.JButton btnClientes;
+    private javax.swing.JButton btnCategorias;
+    private javax.swing.JButton btnEquipamentos;
     private javax.swing.JButton btnTecnicos;
-    private javax.swing.JLabel lblTecnicos;
+    private javax.swing.JSeparator separadorRodape;
     private javax.swing.JLabel lblRodape;
+    private javax.swing.JButton btnSair;
     private javax.swing.JMenuBar barraMenu;
     private javax.swing.JMenu menuCadastros;
     private javax.swing.JMenuItem menuClientes;

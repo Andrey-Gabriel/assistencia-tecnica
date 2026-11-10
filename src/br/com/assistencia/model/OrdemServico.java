@@ -11,6 +11,7 @@ public class OrdemServico {
     private String clienteNome;
     private String tecnicoNome;
     private String equipamentoNome;
+    private String equipamentoModelo;
     private LocalDateTime dataAbertura;
     private LocalDateTime dataEncerramento;
     private StatusOrdem status;
@@ -32,6 +33,8 @@ public class OrdemServico {
     public void setTecnicoNome(String nome) { tecnicoNome = nome; }
     public String getEquipamentoNome() { return equipamentoNome; }
     public void setEquipamentoNome(String nome) { equipamentoNome = nome; }
+    public String getEquipamentoModelo() { return equipamentoModelo; }
+    public void setEquipamentoModelo(String nome) { equipamentoModelo = nome; }
     public LocalDateTime getDataAbertura() { return dataAbertura; }
     public void setDataAbertura(LocalDateTime data) { dataAbertura = data; }
     public LocalDateTime getDataEncerramento() { return dataEncerramento; }

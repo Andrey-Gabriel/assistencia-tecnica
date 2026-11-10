@@ -50,6 +50,7 @@ public class TecnicoController {
     }
 
     private void autorizar() throws SQLException {
+        Sessao.validarAcesso();
         Sessao.exigirAdministrador();
         if (!dao.ehAdministrador(Sessao.idTecnico())) {
             throw new SecurityException("Seu acesso de administrador foi removido. Entre novamente no sistema.");

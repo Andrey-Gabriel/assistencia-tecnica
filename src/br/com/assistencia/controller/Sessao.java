@@ -1,6 +1,8 @@
 package br.com.assistencia.controller;
 
+import br.com.assistencia.dao.TecnicoDAO;
 import br.com.assistencia.model.Tecnico;
+import java.sql.SQLException;
 
 /** Mantém o técnico autenticado somente durante a execução da aplicação. */
 public final class Sessao {
@@ -21,8 +23,24 @@ public final class Sessao {
     }
 
     public static void exigirAutenticacao() {
-        if (!estaAutenticado()) {
+        tecnicoAutenticado();
+    }
+
+    private static Tecnico tecnicoAutenticado() {
+        Tecnico atual = tecnico;
+        if (atual == null) {
             throw new SecurityException("Entre com o e-mail e a senha de um técnico cadastrado.");
+        }
+        return atual;
+    }
+
+    /** Revalida no banco antes de cada operação, inclusive em telas já abertas. */
+    public static void validarAcesso() throws SQLException {
+        Tecnico atual = tecnicoAutenticado();
+        if (!new TecnicoDAO().existe(atual.getId())) {
+            encerrar();
+            throw new SecurityException("Seu cadastro de técnico foi excluído. "
+                    + "O acesso ao sistema foi encerrado. Procure um administrador.");
         }
     }
 

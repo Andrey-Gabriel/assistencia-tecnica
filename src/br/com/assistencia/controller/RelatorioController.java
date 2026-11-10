@@ -8,7 +8,7 @@ import java.util.List;
 
 public class RelatorioController {
     public List<LinhaRelatorio> consultar(LocalDate inicio, LocalDate fim) throws SQLException {
-        Sessao.exigirAutenticacao();
+        Sessao.validarAcesso();
         if (inicio == null || fim == null) throw new IllegalArgumentException("Informe as duas datas do período.");
         if (fim.isBefore(inicio)) throw new IllegalArgumentException("A data final deve ser igual ou posterior à inicial.");
         if (inicio.getYear() < 1000 || fim.getYear() > 9998) {

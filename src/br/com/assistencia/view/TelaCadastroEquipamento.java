@@ -14,7 +14,7 @@ public class TelaCadastroEquipamento extends javax.swing.JFrame implements TelaG
     public TelaCadastroEquipamento() {
         Sessao.exigirAutenticacao();
         initComponents();
-        getContentPane().setBackground(java.awt.Color.WHITE);
+        EstiloVisual.aplicar(this);
         Formularios.opcoes(cmbCategoria, List.of());
         Formularios.tabela(tabelaRegistros, Integer.class, String.class, String.class, String.class, String.class);
         suporte = new CadastroSuporte<Equipamento>(this, tabelaRegistros, lblModo, lblStatus,
@@ -44,7 +44,7 @@ public class TelaCadastroEquipamento extends javax.swing.JFrame implements TelaG
             @Override protected Object[] linha(Equipamento e) {
                 return new Object[]{e.getId(), e.getCategoriaNome(), e.getMarca(), e.getModelo(), e.getNumeroSerie()};
             }
-            @Override protected String descricao(Equipamento e) { return "o equipamento #" + e.getId() + " (" + e.getMarca() + " " + e.getModelo() + ")"; }
+            @Override protected String descricao(Equipamento e) { return "o equipamento #" + e.getId() + " (" + Formularios.equipamento(null, e.getMarca(), e.getModelo()) + ")"; }
         };
         suporte.iniciar();
     }
@@ -80,63 +80,102 @@ public class TelaCadastroEquipamento extends javax.swing.JFrame implements TelaG
         lblTitulo = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
         separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
         lblModo = new javax.swing.JLabel();
         lblCmbCategoria = new javax.swing.JLabel();
         cmbCategoria = new javax.swing.JComboBox<>();
+        cmbCategoria.setBackground(new java.awt.Color(255, 255, 255));
+        cmbCategoria.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtMarca = new javax.swing.JLabel();
         txtMarca = new javax.swing.JTextField();
+        txtMarca.setBackground(new java.awt.Color(255, 255, 255));
+        txtMarca.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtModelo = new javax.swing.JLabel();
         txtModelo = new javax.swing.JTextField();
+        txtModelo.setBackground(new java.awt.Color(255, 255, 255));
+        txtModelo.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtSerie = new javax.swing.JLabel();
         txtSerie = new javax.swing.JTextField();
+        txtSerie.setBackground(new java.awt.Color(255, 255, 255));
+        txtSerie.setForeground(new java.awt.Color(40, 47, 56));
         lblAjuda = new javax.swing.JLabel();
         btnNovo = new javax.swing.JButton();
+        btnNovo.setOpaque(true);
+        btnNovo.setContentAreaFilled(false);
+        btnNovo.setBackground(new java.awt.Color(255, 255, 255));
+        btnNovo.setForeground(new java.awt.Color(40, 47, 56));
+        btnNovo.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnSalvar = new javax.swing.JButton();
+        btnSalvar.setOpaque(true);
+        btnSalvar.setContentAreaFilled(false);
         btnEditar = new javax.swing.JButton();
+        btnEditar.setOpaque(true);
+        btnEditar.setContentAreaFilled(false);
+        btnEditar.setBackground(new java.awt.Color(255, 255, 255));
+        btnEditar.setForeground(new java.awt.Color(40, 47, 56));
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnExcluir = new javax.swing.JButton();
+        btnExcluir.setOpaque(true);
+        btnExcluir.setContentAreaFilled(false);
+        btnExcluir.setBackground(new java.awt.Color(255, 255, 255));
+        btnExcluir.setForeground(new java.awt.Color(167, 49, 49));
+        btnExcluir.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnAtualizar = new javax.swing.JButton();
+        btnAtualizar.setOpaque(true);
+        btnAtualizar.setContentAreaFilled(false);
+        btnAtualizar.setBackground(new java.awt.Color(255, 255, 255));
+        btnAtualizar.setForeground(new java.awt.Color(40, 47, 56));
+        btnAtualizar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnFechar = new javax.swing.JButton();
+        btnFechar.setOpaque(true);
+        btnFechar.setContentAreaFilled(false);
+        btnFechar.setBackground(new java.awt.Color(255, 255, 255));
+        btnFechar.setForeground(new java.awt.Color(40, 47, 56));
+        btnFechar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblListagem = new javax.swing.JLabel();
         scrollRegistros = new javax.swing.JScrollPane();
         tabelaRegistros = new javax.swing.JTable();
+        tabelaRegistros.setBackground(new java.awt.Color(255, 255, 255));
+        tabelaRegistros.setForeground(new java.awt.Color(40, 47, 56));
         lblStatus = new javax.swing.JLabel();
         setDefaultCloseOperation(0);
         setTitle("Equipamentos | Assistência Técnica");
         setMinimumSize(new java.awt.Dimension(940, 660));
         setPreferredSize(new java.awt.Dimension(1000, 720));
         lblTitulo.setText("Equipamentos");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 28));
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22));
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
         lblDescricao.setText("Cadastre os aparelhos e vincule cada um à sua categoria.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblDescricao.setForeground(new java.awt.Color(25, 42, 64));
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
         lblModo.setText("Novo equipamento");
-        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblModo.setForeground(new java.awt.Color(25, 42, 64));
-        lblCmbCategoria.setText("Categoria *");
-        lblCmbCategoria.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblCmbCategoria.setForeground(new java.awt.Color(25, 42, 64));
-        cmbCategoria.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblTxtMarca.setText("Marca *");
-        lblTxtMarca.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtMarca.setForeground(new java.awt.Color(25, 42, 64));
-        txtMarca.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblTxtModelo.setText("Modelo *");
-        lblTxtModelo.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtModelo.setForeground(new java.awt.Color(25, 42, 64));
-        txtModelo.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblModo.setForeground(new java.awt.Color(40, 47, 56));
+        lblCmbCategoria.setText("Categoria");
+        lblCmbCategoria.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblCmbCategoria.setForeground(new java.awt.Color(40, 47, 56));
+        cmbCategoria.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtMarca.setText("Marca");
+        lblTxtMarca.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtMarca.setForeground(new java.awt.Color(40, 47, 56));
+        txtMarca.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtModelo.setText("Equipamento / modelo *");
+        lblTxtModelo.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtModelo.setForeground(new java.awt.Color(40, 47, 56));
+        txtModelo.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblTxtSerie.setText("Número de série");
-        lblTxtSerie.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtSerie.setForeground(new java.awt.Color(25, 42, 64));
-        txtSerie.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblAjuda.setText("Categoria, marca e modelo são obrigatórios. O número de série é opcional.");
+        lblTxtSerie.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtSerie.setForeground(new java.awt.Color(40, 47, 56));
+        txtSerie.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblAjuda.setText("Informe o nome/modelo. Categoria, marca e número de série são opcionais.");
         lblAjuda.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblAjuda.setForeground(new java.awt.Color(25, 42, 64));
+        lblAjuda.setForeground(new java.awt.Color(102, 111, 123));
         btnNovo.setText("Novo");
         btnNovo.addActionListener(this::btnNovoActionPerformed);
         btnSalvar.setText("Salvar");
         btnSalvar.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        btnSalvar.setBackground(new java.awt.Color(34, 76, 125));
+        btnSalvar.setBackground(new java.awt.Color(43, 76, 110));
         btnSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btnSalvar.addActionListener(this::btnSalvarActionPerformed);
         btnEditar.setText("Editar selecionado");
@@ -148,11 +187,11 @@ public class TelaCadastroEquipamento extends javax.swing.JFrame implements TelaG
         btnFechar.setText("Fechar");
         btnFechar.addActionListener(this::btnFecharActionPerformed);
         lblListagem.setText("Equipamentos cadastrados");
-        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblListagem.setForeground(new java.awt.Color(25, 42, 64));
+        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblListagem.setForeground(new java.awt.Color(40, 47, 56));
         scrollRegistros.setViewportView(tabelaRegistros);
         tabelaRegistros.setAutoCreateRowSorter(true);
-        tabelaRegistros.setRowHeight(30);
+        tabelaRegistros.setRowHeight(28);
         tabelaRegistros.setShowVerticalLines(false);
         tabelaRegistros.setFillsViewportHeight(true);
         tabelaRegistros.setFont(new java.awt.Font("Segoe UI", 0, 13));
@@ -161,7 +200,7 @@ public class TelaCadastroEquipamento extends javax.swing.JFrame implements TelaG
         });
         lblStatus.setText("Carregando cadastros...");
         lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblStatus.setForeground(new java.awt.Color(25, 42, 64));
+        lblStatus.setForeground(new java.awt.Color(102, 111, 123));
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -211,7 +250,7 @@ public class TelaCadastroEquipamento extends javax.swing.JFrame implements TelaG
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(lblTitulo, -2, 36, 36)
+                .addComponent(lblTitulo, -2, 32, 32)
                 .addGap(4, 4, 4)
                 .addComponent(lblDescricao, -2, 22, 22)
                 .addGap(16, 16, 16)

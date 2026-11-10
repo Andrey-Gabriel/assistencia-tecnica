@@ -13,7 +13,7 @@ public class TelaLogin extends javax.swing.JFrame {
 
     public TelaLogin() {
         initComponents();
-        getContentPane().setBackground(java.awt.Color.WHITE);
+        EstiloVisual.aplicar(this);
         getRootPane().setDefaultButton(btnEntrar);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override public void windowClosing(java.awt.event.WindowEvent e) {
@@ -87,38 +87,53 @@ public class TelaLogin extends javax.swing.JFrame {
 
         lblTitulo = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
         separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
         lblEmail = new javax.swing.JLabel();
+        lblEmail.setForeground(new java.awt.Color(40, 47, 56));
+        lblEmail.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtEmail = new javax.swing.JTextField();
+        txtEmail.setBackground(new java.awt.Color(255, 255, 255));
+        txtEmail.setForeground(new java.awt.Color(40, 47, 56));
         lblSenha = new javax.swing.JLabel();
+        lblSenha.setForeground(new java.awt.Color(40, 47, 56));
+        lblSenha.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtSenha = new javax.swing.JPasswordField();
+        txtSenha.setBackground(new java.awt.Color(255, 255, 255));
+        txtSenha.setForeground(new java.awt.Color(40, 47, 56));
         btnEntrar = new javax.swing.JButton();
+        btnEntrar.setOpaque(true);
+        btnEntrar.setContentAreaFilled(false);
         lblStatus = new javax.swing.JLabel();
+        lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
         lblRodape = new javax.swing.JLabel();
+        lblRodape.setFont(new java.awt.Font("Segoe UI", 0, 12));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Entrar | Assistência Técnica");
-        setMinimumSize(new java.awt.Dimension(500, 530));
-        setPreferredSize(new java.awt.Dimension(520, 550));
+        setMinimumSize(new java.awt.Dimension(500, 490));
+        setPreferredSize(new java.awt.Dimension(520, 510));
 
         lblTitulo.setText("Assistência Técnica");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 27)); // NOI18N
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22)); // NOI18N
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
 
         lblDescricao.setText("Entre com o e-mail e a senha do seu cadastro.");
-        lblDescricao.setForeground(new java.awt.Color(91, 105, 124));
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
 
         lblEmail.setText("E-mail");
 
-        txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
         lblSenha.setText("Senha");
 
-        txtSenha.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtSenha.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
 
         btnEntrar.setText("Entrar");
-        btnEntrar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnEntrar.setBackground(new java.awt.Color(34, 76, 125));
+        btnEntrar.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
+        btnEntrar.setBackground(new java.awt.Color(43, 76, 110));
         btnEntrar.setForeground(new java.awt.Color(255, 255, 255));
         btnEntrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -127,10 +142,10 @@ public class TelaLogin extends javax.swing.JFrame {
         });
 
         lblStatus.setText(" ");
-        lblStatus.setForeground(new java.awt.Color(164, 40, 48));
+        lblStatus.setForeground(new java.awt.Color(167, 49, 49));
 
         lblRodape.setText("Acesso exclusivo para técnicos cadastrados.");
-        lblRodape.setForeground(new java.awt.Color(91, 105, 124));
+        lblRodape.setForeground(new java.awt.Color(102, 111, 123));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -155,7 +170,7 @@ public class TelaLogin extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(32, 32, 32)
-                .addComponent(lblTitulo, 38, 38, 38)
+                .addComponent(lblTitulo, 32, 32, 32)
                 .addGap(8, 8, 8)
                 .addComponent(lblDescricao, 22, 22, 22)
                 .addGap(22, 22, 22)
@@ -163,13 +178,13 @@ public class TelaLogin extends javax.swing.JFrame {
                 .addGap(22, 22, 22)
                 .addComponent(lblEmail, 20, 20, 20)
                 .addGap(6, 6, 6)
-                .addComponent(txtEmail, 38, 38, 38)
+                .addComponent(txtEmail, 34, 34, 34)
                 .addGap(16, 16, 16)
                 .addComponent(lblSenha, 20, 20, 20)
                 .addGap(6, 6, 6)
-                .addComponent(txtSenha, 38, 38, 38)
+                .addComponent(txtSenha, 34, 34, 34)
                 .addGap(24, 24, 24)
-                .addComponent(btnEntrar, 42, 42, 42)
+                .addComponent(btnEntrar, 36, 36, 36)
                 .addGap(8, 8, 8)
                 .addComponent(lblStatus, 48, 48, 48)
                 .addGap(8, 16, Short.MAX_VALUE)
@@ -182,12 +197,7 @@ public class TelaLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     public static void main(String[] args) {
-        try {
-            javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException e) {
-            java.util.logging.Logger.getLogger(TelaLogin.class.getName())
-                    .log(java.util.logging.Level.WARNING, "Aparência padrão do sistema", e);
-        }
+        EstiloVisual.iniciar();
         java.awt.EventQueue.invokeLater(() -> new TelaLogin().setVisible(true));
     }
 

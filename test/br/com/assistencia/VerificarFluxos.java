@@ -20,6 +20,7 @@ import javax.swing.*;
  * O MySQL pode consumir números de AUTO_INCREMENT mesmo com rollback.
  */
 class VerificarFluxos {
+    static volatile boolean falharConexao;
     static TelaCadastroCliente tela; static br.com.assistencia.view.TelaCadastroTecnico janelaTecnico;
     static String prefixo = "TESTE-" + UUID.randomUUID();
     static void conferir(boolean condicao, String mensagem) {
@@ -82,9 +83,11 @@ class VerificarFluxos {
             wrapper = new Driver() {
                 public Connection connect(String url, Properties props) throws SQLException {
                     if (!acceptsURL(url)) return null;
+                    if (falharConexao) throw new SQLException("Conexao indisponivel no teste", "08001");
                     return (Connection) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{Connection.class},
                         (p, m, a) -> {
-                            if (java.util.Set.of("close", "commit", "rollback", "setAutoCommit").contains(m.getName())) return null;
+                            if (java.util.Set.of("close", "commit", "setAutoCommit").contains(m.getName())
+                                    || (m.getName().equals("rollback") && (a == null || a.length == 0))) return null;
                             try { return m.invoke(banco, a); } catch (InvocationTargetException e) { throw e.getCause(); }
                         });
                 }
@@ -164,6 +167,7 @@ class VerificarFluxos {
                 daoTecnicos.criarPrimeiroAdministrador(br.com.assistencia.controller.TecnicoController.validar(0,"Outro admin","123","outro-"+emailAdmin,true), hash1);
                 throw new AssertionError("Configuracao inicial aceitou outro administrador");
             } catch (IllegalArgumentException esperado) { }
+            VerificarSessaoRevogada.executar(banco, emailNormal, novaSenha, emailAdmin, senhaTeste);
             tecnicos.excluir(idNormal);
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
             edt(() -> {
@@ -176,7 +180,6 @@ class VerificarFluxos {
             ClienteController c = new ClienteController();
             int quantidade = c.listar().size();
             invalido(() -> c.cadastrar(" ", "123", ""), "Aceitou nome vazio");
-            invalido(() -> c.cadastrar("Cliente", " ", ""), "Aceitou telefone vazio");
             invalido(() -> c.cadastrar("x".repeat(121), "123", ""), "Aceitou nome maior que o banco");
             invalido(() -> c.cadastrar("Cliente", "1".repeat(26), ""), "Aceitou telefone maior que o banco");
             invalido(() -> c.cadastrar("Cliente", "123", "invalido"), "Aceitou email invalido");
@@ -273,8 +276,10 @@ class VerificarFluxos {
                 imagem(janelaTecnico,"assistencia-tecnicos.png"); janelaTecnico.dispose();
             });
             VerificarModulos.executar(banco, prefixo);
+            VerificarCadastroDireto.executar(banco, prefixo);
             real.rollback();
-            conferir(c.listar().size() == quantidade, "Quantidade mudou apos rollback");
+            // O administrador temporário também deixa de existir após o rollback.
+            conferir(new br.com.assistencia.dao.ClienteDAO().listar().size() == quantidade, "Quantidade mudou apos rollback");
             System.out.println("OK: rollback executado; registros de teste nao foram mantidos.");
             System.out.println("Imagens: assistencia-menu.png e assistencia-clientes.png na pasta TEMP.");
             exit = 0;

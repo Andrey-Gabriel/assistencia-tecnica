@@ -8,55 +8,47 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
 
     private final OrdemServicoController controller = new OrdemServicoController();
     private CadastroSuporte<OrdemServico> suporte;
-    private record DadosOpcoes(List<Cliente> clientes, List<Tecnico> tecnicos, List<Equipamento> equipamentos) { }
+    private record DadosOpcoes(List<Tecnico> tecnicos) { }
 
     public TelaOrdensServico() {
         Sessao.exigirAutenticacao();
         initComponents();
-        getContentPane().setBackground(java.awt.Color.WHITE);
-        Formularios.opcoes(cmbCliente, List.of()); Formularios.opcoes(cmbTecnico, List.of());
-        Formularios.opcoes(cmbEquipamento, List.of());
+        EstiloVisual.aplicar(this);
+        Formularios.opcoes(cmbTecnico, List.of());
         cmbStatus.setModel(new javax.swing.DefaultComboBoxModel<>(StatusOrdem.values()));
         Formularios.tabela(tabelaRegistros, Integer.class, java.time.LocalDateTime.class,
                 String.class, String.class, String.class, StatusOrdem.class, java.math.BigDecimal.class, java.time.LocalDateTime.class);
         suporte = new CadastroSuporte<OrdemServico>(this, tabelaRegistros, lblModo, lblStatus,
                 btnNovo, btnSalvar, btnEditar, btnExcluir, btnAtualizar, btnFechar,
-                cmbCliente, cmbTecnico, cmbEquipamento, cmbStatus, txtValor, txtDefeito, txtDiagnostico) {
+                txtCliente, cmbTecnico, txtEquipamento, cmbStatus, txtValor, txtDefeito, txtDiagnostico) {
             @Override protected List<OrdemServico> listarBanco() throws Exception { return controller.listar(); }
             @Override protected Object carregarOpcoes() throws Exception {
-                return new DadosOpcoes(new ClienteController().listar(), controller.listarResponsaveis(),
-                        new EquipamentoController().listar());
+                return new DadosOpcoes(controller.listarResponsaveis());
             }
             @Override protected void aplicarOpcoes(Object carga) {
-                DadosOpcoes dados = (DadosOpcoes) carga;
-                Formularios.opcoes(cmbCliente, dados.clientes().stream()
-                        .map(c -> new Opcao(c.getId(), c.getNome() + " (#" + c.getId() + ")")).toList());
-                Formularios.opcoes(cmbTecnico, dados.tecnicos().stream()
+                Formularios.opcoes(cmbTecnico, ((DadosOpcoes) carga).tecnicos().stream()
                         .map(t -> new Opcao(t.getId(), t.getNome() + " (#" + t.getId() + ")")).toList());
-                Formularios.opcoes(cmbEquipamento, dados.equipamentos().stream()
-                        .map(e -> new Opcao(e.getId(), e.getCategoriaNome() + " / " + e.getMarca() + " " + e.getModelo()
-                                + " (#" + e.getId() + ")")).toList());
             }
             @Override protected OrdemServico lerFormulario(int id) {
                 OrdemServico os = new OrdemServico();
-                os.setId(id); os.setClienteId(Formularios.id(cmbCliente)); os.setTecnicoId(Formularios.id(cmbTecnico));
-                os.setEquipamentoId(Formularios.id(cmbEquipamento)); os.setStatus((StatusOrdem) cmbStatus.getSelectedItem());
+                os.setId(id); os.setClienteNome(txtCliente.getText()); os.setTecnicoId(Formularios.id(cmbTecnico));
+                os.setEquipamentoModelo(txtEquipamento.getText()); os.setStatus((StatusOrdem) cmbStatus.getSelectedItem());
                 os.setDefeitoRelatado(txtDefeito.getText()); os.setDiagnostico(txtDiagnostico.getText());
                 os.setValorServico(Formularios.lerValor(txtValor.getText()));
                 return os;
             }
-            @Override protected void salvarBanco(OrdemServico os) throws Exception { controller.salvar(os); }
+            @Override protected void salvarBanco(OrdemServico os) throws Exception { controller.salvarAtendimento(os); }
             @Override protected void excluirBanco(int id) throws Exception { controller.excluir(id); }
             @Override protected void preencherFormulario(OrdemServico os) {
-                Formularios.selecionar(cmbCliente, os.getClienteId()); Formularios.selecionar(cmbTecnico, os.getTecnicoId());
-                Formularios.selecionar(cmbEquipamento, os.getEquipamentoId()); cmbStatus.setSelectedItem(os.getStatus());
+                txtCliente.setText(os.getClienteNome()); Formularios.selecionar(cmbTecnico, os.getTecnicoId());
+                txtEquipamento.setText(os.getEquipamentoModelo()); cmbStatus.setSelectedItem(os.getStatus());
                 txtAbertura.setText(Formularios.data(os.getDataAbertura()));
                 txtEncerramento.setText(os.getDataEncerramento() == null ? "Em andamento" : Formularios.data(os.getDataEncerramento()));
                 txtDefeito.setText(os.getDefeitoRelatado()); txtDiagnostico.setText(os.getDiagnostico() == null ? "" : os.getDiagnostico());
                 txtValor.setText(Formularios.valorEditavel(os.getValorServico()));
             }
             @Override protected void limparFormulario() {
-                Formularios.selecionar(cmbCliente, 0); Formularios.selecionar(cmbTecnico, 0); Formularios.selecionar(cmbEquipamento, 0);
+                txtCliente.setText(""); Formularios.selecionar(cmbTecnico, 0); txtEquipamento.setText("");
                 cmbStatus.setSelectedItem(StatusOrdem.ABERTA); txtDefeito.setText(""); txtDiagnostico.setText(""); txtValor.setText("");
                 txtAbertura.setText("Automática ao salvar"); txtEncerramento.setText("Automático ao encerrar");
             }
@@ -101,103 +93,152 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         lblTitulo = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
         separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
         lblModo = new javax.swing.JLabel();
-        lblCmbCliente = new javax.swing.JLabel();
-        cmbCliente = new javax.swing.JComboBox<>();
+        lblTxtCliente = new javax.swing.JLabel();
+        txtCliente = new javax.swing.JTextField();
+        txtCliente.setBackground(new java.awt.Color(255, 255, 255));
+        txtCliente.setForeground(new java.awt.Color(40, 47, 56));
         lblCmbTecnico = new javax.swing.JLabel();
         cmbTecnico = new javax.swing.JComboBox<>();
+        cmbTecnico.setBackground(new java.awt.Color(255, 255, 255));
+        cmbTecnico.setForeground(new java.awt.Color(40, 47, 56));
         lblCmbStatus = new javax.swing.JLabel();
         cmbStatus = new javax.swing.JComboBox<>();
-        lblCmbEquipamento = new javax.swing.JLabel();
-        cmbEquipamento = new javax.swing.JComboBox<>();
+        cmbStatus.setBackground(new java.awt.Color(255, 255, 255));
+        cmbStatus.setForeground(new java.awt.Color(40, 47, 56));
+        lblTxtEquipamento = new javax.swing.JLabel();
+        txtEquipamento = new javax.swing.JTextField();
+        txtEquipamento.setBackground(new java.awt.Color(255, 255, 255));
+        txtEquipamento.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtValor = new javax.swing.JLabel();
         txtValor = new javax.swing.JTextField();
+        txtValor.setBackground(new java.awt.Color(255, 255, 255));
+        txtValor.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtAbertura = new javax.swing.JLabel();
         txtAbertura = new javax.swing.JTextField();
+        txtAbertura.setBackground(new java.awt.Color(246, 247, 249));
+        txtAbertura.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtEncerramento = new javax.swing.JLabel();
         txtEncerramento = new javax.swing.JTextField();
+        txtEncerramento.setBackground(new java.awt.Color(246, 247, 249));
+        txtEncerramento.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtDefeito = new javax.swing.JLabel();
         scrolltxtDefeito = new javax.swing.JScrollPane();
         txtDefeito = new javax.swing.JTextArea();
+        txtDefeito.setBackground(new java.awt.Color(255, 255, 255));
+        txtDefeito.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtDiagnostico = new javax.swing.JLabel();
         scrolltxtDiagnostico = new javax.swing.JScrollPane();
         txtDiagnostico = new javax.swing.JTextArea();
+        txtDiagnostico.setBackground(new java.awt.Color(255, 255, 255));
+        txtDiagnostico.setForeground(new java.awt.Color(40, 47, 56));
         lblAjuda = new javax.swing.JLabel();
         btnNovo = new javax.swing.JButton();
+        btnNovo.setOpaque(true);
+        btnNovo.setContentAreaFilled(false);
+        btnNovo.setBackground(new java.awt.Color(255, 255, 255));
+        btnNovo.setForeground(new java.awt.Color(40, 47, 56));
+        btnNovo.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnSalvar = new javax.swing.JButton();
+        btnSalvar.setOpaque(true);
+        btnSalvar.setContentAreaFilled(false);
         btnEditar = new javax.swing.JButton();
+        btnEditar.setOpaque(true);
+        btnEditar.setContentAreaFilled(false);
+        btnEditar.setBackground(new java.awt.Color(255, 255, 255));
+        btnEditar.setForeground(new java.awt.Color(40, 47, 56));
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnExcluir = new javax.swing.JButton();
+        btnExcluir.setOpaque(true);
+        btnExcluir.setContentAreaFilled(false);
+        btnExcluir.setBackground(new java.awt.Color(255, 255, 255));
+        btnExcluir.setForeground(new java.awt.Color(167, 49, 49));
+        btnExcluir.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnAtualizar = new javax.swing.JButton();
+        btnAtualizar.setOpaque(true);
+        btnAtualizar.setContentAreaFilled(false);
+        btnAtualizar.setBackground(new java.awt.Color(255, 255, 255));
+        btnAtualizar.setForeground(new java.awt.Color(40, 47, 56));
+        btnAtualizar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnFechar = new javax.swing.JButton();
+        btnFechar.setOpaque(true);
+        btnFechar.setContentAreaFilled(false);
+        btnFechar.setBackground(new java.awt.Color(255, 255, 255));
+        btnFechar.setForeground(new java.awt.Color(40, 47, 56));
+        btnFechar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblListagem = new javax.swing.JLabel();
         scrollRegistros = new javax.swing.JScrollPane();
         tabelaRegistros = new javax.swing.JTable();
+        tabelaRegistros.setBackground(new java.awt.Color(255, 255, 255));
+        tabelaRegistros.setForeground(new java.awt.Color(40, 47, 56));
         lblStatus = new javax.swing.JLabel();
         setDefaultCloseOperation(0);
         setTitle("Ordens de serviço | Assistência Técnica");
         setMinimumSize(new java.awt.Dimension(1040, 820));
         setPreferredSize(new java.awt.Dimension(1120, 900));
         lblTitulo.setText("Ordens de serviço");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 28));
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
-        lblDescricao.setText("Acompanhe cada atendimento desde a entrada até o encerramento.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblDescricao.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22));
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
+        lblDescricao.setText("Informe os nomes do cliente e do equipamento para abrir o atendimento.");
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
         lblModo.setText("Nova ordem de serviço");
-        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblModo.setForeground(new java.awt.Color(25, 42, 64));
-        lblCmbCliente.setText("Cliente *");
-        lblCmbCliente.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblCmbCliente.setForeground(new java.awt.Color(25, 42, 64));
-        cmbCliente.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblModo.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblModo.setForeground(new java.awt.Color(40, 47, 56));
+        lblTxtCliente.setText("Nome do cliente *");
+        lblTxtCliente.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtCliente.setForeground(new java.awt.Color(40, 47, 56));
+        txtCliente.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblCmbTecnico.setText("Técnico responsável *");
-        lblCmbTecnico.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblCmbTecnico.setForeground(new java.awt.Color(25, 42, 64));
-        cmbTecnico.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblCmbTecnico.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblCmbTecnico.setForeground(new java.awt.Color(40, 47, 56));
+        cmbTecnico.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblCmbStatus.setText("Status *");
-        lblCmbStatus.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblCmbStatus.setForeground(new java.awt.Color(25, 42, 64));
-        cmbStatus.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblCmbEquipamento.setText("Equipamento *");
-        lblCmbEquipamento.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblCmbEquipamento.setForeground(new java.awt.Color(25, 42, 64));
-        cmbEquipamento.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblCmbStatus.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblCmbStatus.setForeground(new java.awt.Color(40, 47, 56));
+        cmbStatus.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtEquipamento.setText("Nome do equipamento *");
+        lblTxtEquipamento.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtEquipamento.setForeground(new java.awt.Color(40, 47, 56));
+        txtEquipamento.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblTxtValor.setText("Valor do serviço (R$)");
-        lblTxtValor.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtValor.setForeground(new java.awt.Color(25, 42, 64));
-        txtValor.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblTxtValor.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtValor.setForeground(new java.awt.Color(40, 47, 56));
+        txtValor.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblTxtAbertura.setText("Abertura");
-        lblTxtAbertura.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtAbertura.setForeground(new java.awt.Color(25, 42, 64));
-        txtAbertura.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblTxtAbertura.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtAbertura.setForeground(new java.awt.Color(40, 47, 56));
+        txtAbertura.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtAbertura.setEditable(false);
         lblTxtEncerramento.setText("Encerramento");
-        lblTxtEncerramento.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtEncerramento.setForeground(new java.awt.Color(25, 42, 64));
-        txtEncerramento.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblTxtEncerramento.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtEncerramento.setForeground(new java.awt.Color(40, 47, 56));
+        txtEncerramento.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtEncerramento.setEditable(false);
         lblTxtDefeito.setText("Defeito relatado * (até 500 caracteres)");
-        lblTxtDefeito.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtDefeito.setForeground(new java.awt.Color(25, 42, 64));
+        lblTxtDefeito.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtDefeito.setForeground(new java.awt.Color(40, 47, 56));
         scrolltxtDefeito.setViewportView(txtDefeito);
-        txtDefeito.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        txtDefeito.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtDefeito.setLineWrap(true);
         txtDefeito.setWrapStyleWord(true);
         lblTxtDiagnostico.setText("Diagnóstico");
-        lblTxtDiagnostico.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblTxtDiagnostico.setForeground(new java.awt.Color(25, 42, 64));
+        lblTxtDiagnostico.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtDiagnostico.setForeground(new java.awt.Color(40, 47, 56));
         scrolltxtDiagnostico.setViewportView(txtDiagnostico);
-        txtDiagnostico.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        txtDiagnostico.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtDiagnostico.setLineWrap(true);
         txtDiagnostico.setWrapStyleWord(true);
-        lblAjuda.setText("Concluída, Entregue e Cancelada encerram automaticamente. Reabrir a ordem remove o encerramento.");
+        lblAjuda.setText("Cliente e equipamento são cadastrados ao salvar a OS. Os demais dados podem ser completados nos cadastros.");
         lblAjuda.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblAjuda.setForeground(new java.awt.Color(25, 42, 64));
+        lblAjuda.setForeground(new java.awt.Color(102, 111, 123));
         btnNovo.setText("Novo");
         btnNovo.addActionListener(this::btnNovoActionPerformed);
         btnSalvar.setText("Salvar");
         btnSalvar.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        btnSalvar.setBackground(new java.awt.Color(34, 76, 125));
+        btnSalvar.setBackground(new java.awt.Color(43, 76, 110));
         btnSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btnSalvar.addActionListener(this::btnSalvarActionPerformed);
         btnEditar.setText("Editar selecionado");
@@ -209,11 +250,11 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         btnFechar.setText("Fechar");
         btnFechar.addActionListener(this::btnFecharActionPerformed);
         lblListagem.setText("Ordens de serviço");
-        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblListagem.setForeground(new java.awt.Color(25, 42, 64));
+        lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblListagem.setForeground(new java.awt.Color(40, 47, 56));
         scrollRegistros.setViewportView(tabelaRegistros);
         tabelaRegistros.setAutoCreateRowSorter(true);
-        tabelaRegistros.setRowHeight(30);
+        tabelaRegistros.setRowHeight(28);
         tabelaRegistros.setShowVerticalLines(false);
         tabelaRegistros.setFillsViewportHeight(true);
         tabelaRegistros.setFont(new java.awt.Font("Segoe UI", 0, 13));
@@ -222,7 +263,7 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         });
         lblStatus.setText("Carregando cadastros...");
         lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblStatus.setForeground(new java.awt.Color(25, 42, 64));
+        lblStatus.setForeground(new java.awt.Color(102, 111, 123));
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -236,8 +277,8 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
                     .addComponent(lblModo, -2, -2, -2)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblCmbCliente, -2, -2, -2)
-                            .addComponent(cmbCliente, 0, 350, 32767))
+                            .addComponent(lblTxtCliente, -2, -2, -2)
+                            .addComponent(txtCliente, 0, 350, 32767))
                         .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblCmbTecnico, -2, -2, -2)
@@ -248,8 +289,8 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
                             .addComponent(cmbStatus, 0, 220, 32767)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblCmbEquipamento, -2, -2, -2)
-                            .addComponent(cmbEquipamento, 0, 720, 32767))
+                            .addComponent(lblTxtEquipamento, -2, -2, -2)
+                            .addComponent(txtEquipamento, 0, 720, 32767))
                         .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblTxtValor, -2, -2, -2)
@@ -292,7 +333,7 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(lblTitulo, -2, 36, 36)
+                .addComponent(lblTitulo, -2, 32, 32)
                 .addGap(4, 4, 4)
                 .addComponent(lblDescricao, -2, 22, 22)
                 .addGap(16, 16, 16)
@@ -301,21 +342,21 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
                 .addComponent(lblModo, -2, 24, 24)
                 .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblCmbCliente, -2, 20, 20)
+                    .addComponent(lblTxtCliente, -2, 20, 20)
                     .addComponent(lblCmbTecnico, -2, 20, 20)
                     .addComponent(lblCmbStatus, -2, 20, 20))
                 .addGap(4, 4, 4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cmbCliente, -2, 34, 34)
+                    .addComponent(txtCliente, -2, 34, 34)
                     .addComponent(cmbTecnico, -2, 34, 34)
                     .addComponent(cmbStatus, -2, 34, 34))
                 .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblCmbEquipamento, -2, 20, 20)
+                    .addComponent(lblTxtEquipamento, -2, 20, 20)
                     .addComponent(lblTxtValor, -2, 20, 20))
                 .addGap(4, 4, 4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cmbEquipamento, -2, 34, 34)
+                    .addComponent(txtEquipamento, -2, 34, 34)
                     .addComponent(txtValor, -2, 34, 34))
                 .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -362,14 +403,14 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
     private javax.swing.JLabel lblDescricao;
     private javax.swing.JSeparator separador;
     private javax.swing.JLabel lblModo;
-    private javax.swing.JLabel lblCmbCliente;
-    private javax.swing.JComboBox<Opcao> cmbCliente;
+    private javax.swing.JLabel lblTxtCliente;
+    private javax.swing.JTextField txtCliente;
     private javax.swing.JLabel lblCmbTecnico;
     private javax.swing.JComboBox<Opcao> cmbTecnico;
     private javax.swing.JLabel lblCmbStatus;
     private javax.swing.JComboBox<StatusOrdem> cmbStatus;
-    private javax.swing.JLabel lblCmbEquipamento;
-    private javax.swing.JComboBox<Opcao> cmbEquipamento;
+    private javax.swing.JLabel lblTxtEquipamento;
+    private javax.swing.JTextField txtEquipamento;
     private javax.swing.JLabel lblTxtValor;
     private javax.swing.JTextField txtValor;
     private javax.swing.JLabel lblTxtAbertura;

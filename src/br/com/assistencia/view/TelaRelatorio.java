@@ -12,7 +12,7 @@ public class TelaRelatorio extends javax.swing.JFrame implements TelaGerenciada 
     public TelaRelatorio() {
         Sessao.exigirAutenticacao();
         initComponents();
-        getContentPane().setBackground(java.awt.Color.WHITE);
+        EstiloVisual.aplicar(this);
         Formularios.tabela(tabelaRegistros, Integer.class, java.time.LocalDateTime.class, java.time.LocalDateTime.class,
                 String.class, String.class, String.class, StatusOrdem.class, java.math.BigDecimal.class);
         txtInicio.setText(Formularios.dia(java.time.LocalDate.now().withDayOfMonth(1)));
@@ -47,7 +47,7 @@ public class TelaRelatorio extends javax.swing.JFrame implements TelaGerenciada 
                     java.math.BigDecimal total = java.math.BigDecimal.ZERO;
                     for (LinhaRelatorio r : linhas) {
                         modelo.addRow(new Object[]{r.numeroOs(), r.abertura(), r.encerramento(), r.cliente(),
-                            r.categoria() + " / " + r.marca() + " " + r.modelo(), r.tecnico(), r.status(), r.valor()});
+                            Formularios.equipamento(r.categoria(), r.marca(), r.modelo()), r.tecnico(), r.status(), r.valor()});
                         if (r.valor() != null) total = total.add(r.valor());
                     }
                     lblResumo.setText(linhas.size() + " ordem(ns) | Valor dos serviços: " + Formularios.moeda(total));
@@ -81,16 +81,31 @@ public class TelaRelatorio extends javax.swing.JFrame implements TelaGerenciada 
         lblTitulo = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
         separador = new javax.swing.JSeparator();
+        separador.setBackground(new java.awt.Color(246, 247, 249));
+        separador.setForeground(new java.awt.Color(201, 207, 216));
         lblPeriodo = new javax.swing.JLabel();
         lblInicio = new javax.swing.JLabel();
         txtInicio = new javax.swing.JTextField();
+        txtInicio.setBackground(new java.awt.Color(255, 255, 255));
+        txtInicio.setForeground(new java.awt.Color(40, 47, 56));
         lblFim = new javax.swing.JLabel();
         txtFim = new javax.swing.JTextField();
+        txtFim.setBackground(new java.awt.Color(255, 255, 255));
+        txtFim.setForeground(new java.awt.Color(40, 47, 56));
         btnConsultar = new javax.swing.JButton();
+        btnConsultar.setOpaque(true);
+        btnConsultar.setContentAreaFilled(false);
         btnFechar = new javax.swing.JButton();
+        btnFechar.setOpaque(true);
+        btnFechar.setContentAreaFilled(false);
+        btnFechar.setBackground(new java.awt.Color(255, 255, 255));
+        btnFechar.setForeground(new java.awt.Color(40, 47, 56));
+        btnFechar.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblAjuda = new javax.swing.JLabel();
         scrollRegistros = new javax.swing.JScrollPane();
         tabelaRegistros = new javax.swing.JTable();
+        tabelaRegistros.setBackground(new java.awt.Color(255, 255, 255));
+        tabelaRegistros.setForeground(new java.awt.Color(40, 47, 56));
         lblResumo = new javax.swing.JLabel();
         lblStatus = new javax.swing.JLabel();
         setDefaultCloseOperation(0);
@@ -98,35 +113,35 @@ public class TelaRelatorio extends javax.swing.JFrame implements TelaGerenciada 
         setMinimumSize(new java.awt.Dimension(1040, 600));
         setPreferredSize(new java.awt.Dimension(1120, 700));
         lblTitulo.setText("Relatório por período");
-        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 28));
-        lblTitulo.setForeground(new java.awt.Color(25, 42, 64));
+        lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22));
+        lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
         lblDescricao.setText("Consulte as ordens pela data de abertura e acompanhe o valor dos serviços.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblDescricao.setForeground(new java.awt.Color(25, 42, 64));
+        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
         lblPeriodo.setText("Período de abertura");
-        lblPeriodo.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblPeriodo.setForeground(new java.awt.Color(25, 42, 64));
+        lblPeriodo.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblPeriodo.setForeground(new java.awt.Color(40, 47, 56));
         lblInicio.setText("Data inicial (dd/mm/aaaa)");
-        lblInicio.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblInicio.setForeground(new java.awt.Color(25, 42, 64));
-        txtInicio.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblInicio.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblInicio.setForeground(new java.awt.Color(40, 47, 56));
+        txtInicio.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblFim.setText("Data final (dd/mm/aaaa)");
-        lblFim.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        lblFim.setForeground(new java.awt.Color(25, 42, 64));
-        txtFim.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        lblFim.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblFim.setForeground(new java.awt.Color(40, 47, 56));
+        txtFim.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnConsultar.setText("Consultar");
         btnConsultar.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        btnConsultar.setBackground(new java.awt.Color(34, 76, 125));
+        btnConsultar.setBackground(new java.awt.Color(43, 76, 110));
         btnConsultar.setForeground(new java.awt.Color(255, 255, 255));
         btnConsultar.addActionListener(this::btnConsultarActionPerformed);
         btnFechar.setText("Fechar");
         btnFechar.addActionListener(this::btnFecharActionPerformed);
         lblAjuda.setText("A consulta inclui todo o último dia do período informado.");
         lblAjuda.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblAjuda.setForeground(new java.awt.Color(25, 42, 64));
+        lblAjuda.setForeground(new java.awt.Color(102, 111, 123));
         scrollRegistros.setViewportView(tabelaRegistros);
         tabelaRegistros.setAutoCreateRowSorter(true);
-        tabelaRegistros.setRowHeight(30);
+        tabelaRegistros.setRowHeight(28);
         tabelaRegistros.setShowVerticalLines(false);
         tabelaRegistros.setFillsViewportHeight(true);
         tabelaRegistros.setFont(new java.awt.Font("Segoe UI", 0, 13));
@@ -134,11 +149,11 @@ public class TelaRelatorio extends javax.swing.JFrame implements TelaGerenciada 
             @Override public boolean isCellEditable(int linha, int coluna) { return false; }
         });
         lblResumo.setText("Nenhuma consulta realizada.");
-        lblResumo.setFont(new java.awt.Font("Segoe UI", 1, 16));
-        lblResumo.setForeground(new java.awt.Color(25, 42, 64));
+        lblResumo.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        lblResumo.setForeground(new java.awt.Color(40, 47, 56));
         lblStatus.setText("Informe o período e clique em Consultar.");
         lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblStatus.setForeground(new java.awt.Color(25, 42, 64));
+        lblStatus.setForeground(new java.awt.Color(102, 111, 123));
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -172,7 +187,7 @@ public class TelaRelatorio extends javax.swing.JFrame implements TelaGerenciada 
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(lblTitulo, -2, 36, 36)
+                .addComponent(lblTitulo, -2, 32, 32)
                 .addGap(4, 4, 4)
                 .addComponent(lblDescricao, -2, 22, 22)
                 .addGap(18, 18, 18)
@@ -185,8 +200,8 @@ public class TelaRelatorio extends javax.swing.JFrame implements TelaGerenciada 
                     .addComponent(lblFim, -2, 20, 20))
                 .addGap(4, 4, 4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtInicio, -2, 36, 36)
-                    .addComponent(txtFim, -2, 36, 36)
+                    .addComponent(txtInicio, -2, 34, 34)
+                    .addComponent(txtFim, -2, 34, 34)
                     .addComponent(btnConsultar, -2, 36, 36)
                     .addComponent(btnFechar, -2, 36, 36))
                 .addGap(10, 10, 10)
