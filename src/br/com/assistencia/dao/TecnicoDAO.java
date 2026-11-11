@@ -113,6 +113,20 @@ public class TecnicoDAO {
         stmt.setBoolean(4, tecnico.isAdministrador());
     }
 
+    public boolean temAdministrador() throws SQLException {
+        try (Connection conn = conexao.conectar()) {
+            return temAdministrador(conn);
+        }
+    }
+
+    private boolean temAdministrador(Connection conn) throws SQLException {
+        String sql = "SELECT 1 FROM tecnico WHERE administrador = TRUE LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            return rs.next();
+        }
+    }
+
     public void criarPrimeiroAdministrador(Tecnico tecnico, String senhaHash) throws SQLException {
         try (Connection conn = conexao.conectar()) {
             boolean bloqueado = false;
@@ -126,14 +140,9 @@ public class TecnicoDAO {
                     throw new SQLException("Outra configuração inicial está em andamento. Tente novamente.");
                 }
                 conn.setAutoCommit(false);
-                try (PreparedStatement busca = conn.prepareStatement(
-                        "SELECT COUNT(*) FROM tecnico WHERE administrador = TRUE");
-                     ResultSet rs = busca.executeQuery()) {
-                    rs.next();
-                    if (rs.getInt(1) > 0) {
-                        throw new IllegalArgumentException("Já existe um administrador. "
-                                + "Use o login e solicite a ele o cadastro dos demais técnicos.");
-                    }
+                if (temAdministrador(conn)) {
+                    throw new IllegalArgumentException("Já existe um administrador. "
+                            + "Use o login e solicite a ele o cadastro dos demais técnicos.");
                 }
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "INSERT INTO tecnico (nome, telefone, email, administrador, senha_hash) VALUES (?, ?, ?, TRUE, ?)")) {

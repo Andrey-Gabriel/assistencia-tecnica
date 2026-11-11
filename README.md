@@ -37,7 +37,7 @@ Ele apenas consulta dados. Caso a tabela `categoria_equipamento` não exista, ex
 Execute o projeto com **F6**. A classe principal é `br.com.assistencia.view.TelaLogin`.
 Entre com o **e-mail e a senha de um técnico cadastrado**. Essas credenciais são diferentes do usuário e da senha do MySQL configurados nas variáveis de ambiente.
 
-No primeiro uso de um banco sem administrador, execute uma única vez `src/br/com/assistencia/setup/PrimeiroAdministrador.java` com **Shift+F6** e preencha os dados na janela local. O utilitário recusa a criação se já existir um administrador. Nenhuma senha padrão é incluída no código ou nos scripts.
+No primeiro uso, clique em **Primeiro Acesso** no rodapé do login e preencha os dados do gerente. Assim que o cadastro for concluído, entre com o e-mail e a senha escolhidos. O gerente recebe o perfil de administrador. Se o banco já tiver um administrador, o sistema informa que o primeiro acesso foi configurado.
 
 Após entrar, o menu permite gerenciar clientes, categorias, equipamentos e ordens de serviço, além de consultar o relatório por período. Administradores também acessam **Gerenciar técnicos**, onde podem cadastrar técnicos, definir senhas e conceder o perfil de administrador. Técnicos comuns não acessam esse cadastro. A aplicação impede que um administrador exclua a própria conta ou remova seu próprio perfil.
 

@@ -11,6 +11,10 @@ public class AutenticacaoController {
     private static final String HASH_FICTICIO = Senha.gerarHash(
             "Verificacao local sem conta cadastrada".toCharArray());
 
+    public boolean primeiroAcessoDisponivel() throws SQLException {
+        return !dao.temAdministrador();
+    }
+
     public void entrar(String email, char[] senha) throws SQLException {
         Sessao.encerrar();
         if (email == null || email.isBlank() || email.trim().length() > 254

@@ -4,22 +4,20 @@ import br.com.assistencia.controller.TecnicoController;
 import br.com.assistencia.dao.TecnicoDAO;
 import br.com.assistencia.model.Tecnico;
 import br.com.assistencia.seguranca.Senha;
+import br.com.assistencia.view.EstiloVisual;
 import java.util.Arrays;
 import javax.swing.*;
 
-/** Utilitário local de instalação. Não permite criar outro administrador após a configuração. */
+/** Cadastro inicial do gerente, acessível pela tela de login. */
 public final class PrimeiroAdministrador {
 
     public static void main(String[] args) {
-        try {
-            br.com.assistencia.view.EstiloVisual.iniciar();
-        } catch (Exception ignored) {
-        }
-        SwingUtilities.invokeLater(PrimeiroAdministrador::abrir);
+        EstiloVisual.iniciar();
+        SwingUtilities.invokeLater(() -> abrir(null));
     }
 
-    private static void abrir() {
-        JFrame janela = new JFrame("Configurar primeiro administrador");
+    public static void abrir(JFrame login) {
+        JDialog janela = new JDialog(login, "Cadastro do gerente", true);
         janela.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         JPanel painel = new JPanel(new java.awt.GridLayout(0, 2, 12, 12));
         painel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
@@ -28,13 +26,13 @@ public final class PrimeiroAdministrador {
         JTextField email = new JTextField();
         JPasswordField senha = new JPasswordField();
         JPasswordField confirmar = new JPasswordField();
-        painel.add(new JLabel("Nome:")); painel.add(nome);
-        painel.add(new JLabel("Telefone:")); painel.add(telefone);
-        painel.add(new JLabel("E-mail para entrar:")); painel.add(email);
-        painel.add(new JLabel("Senha (8 a 128 caracteres):")); painel.add(senha);
-        painel.add(new JLabel("Confirmar senha:")); painel.add(confirmar);
+        painel.add(new JLabel("Nome")); painel.add(nome);
+        painel.add(new JLabel("Telefone")); painel.add(telefone);
+        painel.add(new JLabel("E-mail para entrar")); painel.add(email);
+        painel.add(new JLabel("Senha (8 a 128 caracteres)")); painel.add(senha);
+        painel.add(new JLabel("Confirmar senha")); painel.add(confirmar);
         JLabel status = new JLabel("Configuração única neste banco.");
-        JButton criar = new JButton("Criar administrador");
+        JButton criar = new JButton("Cadastrar gerente");
         painel.add(status); painel.add(criar);
         criar.addActionListener(e -> {
             char[] textoSenha = senha.getPassword();
@@ -65,7 +63,7 @@ public final class PrimeiroAdministrador {
                     janela.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                     try {
                         get();
-                        JOptionPane.showMessageDialog(janela, "Administrador criado. "
+                        JOptionPane.showMessageDialog(janela, "Gerente cadastrado. "
                                 + "Use o e-mail e a senha informados na tela de login.");
                         janela.dispose();
                     } catch (Exception erro) {
@@ -81,9 +79,10 @@ public final class PrimeiroAdministrador {
         });
         janela.setContentPane(painel);
         criar.setForeground(java.awt.Color.WHITE);
-        criar.setBackground(br.com.assistencia.view.EstiloVisual.AZUL);
-        br.com.assistencia.view.EstiloVisual.aplicar(janela);
+        EstiloVisual.aplicar(janela);
         janela.getRootPane().setDefaultButton(criar);
-        janela.pack(); janela.setLocationRelativeTo(null); janela.setVisible(true);
+        janela.pack();
+        janela.setLocationRelativeTo(login);
+        janela.setVisible(true);
     }
 }

@@ -57,17 +57,24 @@ public final class EstiloVisual {
     }
 
     public static void aplicar(JFrame janela) {
-        String anterior = UIManager.getLookAndFeel().getClass().getName();
-        iniciar();
-        if (!anterior.equals(UIManager.getLookAndFeel().getClass().getName())) SwingUtilities.updateComponentTreeUI(janela);
-        janela.getContentPane().setBackground(FUNDO);
-        configurar(janela.getContentPane());
+        aplicarConteudo(janela, janela.getContentPane());
         JMenuBar barra = janela.getJMenuBar();
         if (barra != null) {
             barra.setBackground(Color.WHITE);
             barra.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, BORDA));
             for (int i = 0; i < barra.getMenuCount(); i++) menu(barra.getMenu(i));
         }
+    }
+
+    public static void aplicar(JDialog janela) {
+        aplicarConteudo(janela, janela.getContentPane());
+    }
+
+    private static void aplicarConteudo(Window janela, Container conteudo) {
+        String anterior = UIManager.getLookAndFeel().getClass().getName();
+        iniciar();
+        if (!anterior.equals(UIManager.getLookAndFeel().getClass().getName())) SwingUtilities.updateComponentTreeUI(janela);
+        configurar(conteudo);
     }
 
     private static void menu(JMenu menu) {

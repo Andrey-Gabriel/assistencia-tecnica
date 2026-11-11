@@ -2,6 +2,7 @@ package br.com.assistencia.view;
 
 import br.com.assistencia.controller.AutenticacaoController;
 import br.com.assistencia.controller.Sessao;
+import br.com.assistencia.setup.PrimeiroAdministrador;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
@@ -30,7 +31,38 @@ public class TelaLogin extends javax.swing.JFrame {
         txtEmail.setEnabled(!valor);
         txtSenha.setEnabled(!valor);
         btnEntrar.setEnabled(!valor);
+        btnPrimeiroAcesso.setEnabled(!valor);
     }
+
+    private void btnPrimeiroAcessoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrimeiroAcessoActionPerformed
+        if (ocupado) return;
+        definirOcupado(true);
+        lblStatus.setText("Verificando primeiro acesso...");
+        new SwingWorker<Boolean, Void>() {
+            @Override protected Boolean doInBackground() throws Exception {
+                return controller.primeiroAcessoDisponivel();
+            }
+
+            @Override protected void done() {
+                try {
+                    if (get()) {
+                        lblStatus.setText(" ");
+                        PrimeiroAdministrador.abrir(TelaLogin.this);
+                    } else {
+                        lblStatus.setText("O primeiro acesso já foi configurado.");
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    lblStatus.setText("Verificação interrompida. Tente novamente.");
+                } catch (ExecutionException e) {
+                    lblStatus.setText("Não foi possível verificar o primeiro acesso.");
+                    Formularios.erro(TelaLogin.this, e.getCause());
+                } finally {
+                    definirOcupado(false);
+                }
+            }
+        }.execute();
+    }//GEN-LAST:event_btnPrimeiroAcessoActionPerformed
 
     private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
         if (ocupado) return;
@@ -110,6 +142,7 @@ public class TelaLogin extends javax.swing.JFrame {
         lblStatus.setFont(new java.awt.Font("Segoe UI", 0, 12));
         lblRodape = new javax.swing.JLabel();
         lblRodape.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        btnPrimeiroAcesso = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Entrar | Assistência Técnica");
@@ -147,6 +180,9 @@ public class TelaLogin extends javax.swing.JFrame {
         lblRodape.setText("Acesso exclusivo para técnicos cadastrados.");
         lblRodape.setForeground(new java.awt.Color(102, 111, 123));
 
+        btnPrimeiroAcesso.setText("Primeiro Acesso");
+        btnPrimeiroAcesso.addActionListener(this::btnPrimeiroAcessoActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -163,7 +199,10 @@ public class TelaLogin extends javax.swing.JFrame {
                     .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnEntrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblRodape))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblRodape)
+                        .addGap(12, 12, Short.MAX_VALUE)
+                        .addComponent(btnPrimeiroAcesso)))
                 .addGap(32, 32, 32))
         );
         layout.setVerticalGroup(
@@ -188,7 +227,9 @@ public class TelaLogin extends javax.swing.JFrame {
                 .addGap(8, 8, 8)
                 .addComponent(lblStatus, 48, 48, 48)
                 .addGap(8, 16, Short.MAX_VALUE)
-                .addComponent(lblRodape, 20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(lblRodape, 20, 20, 20)
+                    .addComponent(btnPrimeiroAcesso, 30, 30, 30))
                 .addGap(24, 24, 24))
         );
 
@@ -203,6 +244,7 @@ public class TelaLogin extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEntrar;
+    private javax.swing.JButton btnPrimeiroAcesso;
     private javax.swing.JLabel lblDescricao;
     private javax.swing.JLabel lblEmail;
     private javax.swing.JLabel lblRodape;
