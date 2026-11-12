@@ -9,6 +9,7 @@ public class OrdemServico {
     private int tecnicoId;
     private int equipamentoId;
     private String clienteNome;
+    private String clienteTelefone;
     private String tecnicoNome;
     private String equipamentoNome;
     private String equipamentoModelo;
@@ -29,6 +30,8 @@ public class OrdemServico {
     public void setEquipamentoId(int id) { equipamentoId = id; }
     public String getClienteNome() { return clienteNome; }
     public void setClienteNome(String nome) { clienteNome = nome; }
+    public String getClienteTelefone() { return clienteTelefone; }
+    public void setClienteTelefone(String telefone) { clienteTelefone = telefone; }
     public String getTecnicoNome() { return tecnicoNome; }
     public void setTecnicoNome(String nome) { tecnicoNome = nome; }
     public String getEquipamentoNome() { return equipamentoNome; }

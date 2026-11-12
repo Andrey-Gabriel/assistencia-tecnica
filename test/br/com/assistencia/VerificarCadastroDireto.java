@@ -77,6 +77,7 @@ final class VerificarCadastroDireto {
                 "Relatório não apresentou aparelho sem marca/categoria");
 
         OrdemServico falha = nova(prefixo + " falha", prefixo + " falha equipamento", "Falha controlada");
+        falha.setClienteTelefone("(61) 91234-5678");
         falha.setTecnicoId(Integer.MAX_VALUE);
         ausente(() -> controller.salvarAtendimento(falha), "Aceitou técnico inexistente");
         conferir(quantidades(banco).equals(aposCadastro), "Erro na OS deixou cliente ou aparelho órfãos");
@@ -84,6 +85,9 @@ final class VerificarCadastroDireto {
         invalido(() -> controller.salvarAtendimento(invalida), "Aceitou nome de cliente vazio");
         invalida.setClienteNome("Cliente"); invalida.setEquipamentoModelo("x".repeat(121));
         invalido(() -> controller.salvarAtendimento(invalida), "Aceitou nome de aparelho longo");
+        invalida.setEquipamentoModelo("Equipamento");
+        invalida.setClienteTelefone("1".repeat(26));
+        invalido(() -> controller.salvarAtendimento(invalida), "Aceitou telefone com mais de 25 caracteres");
         conferir(quantidades(banco).equals(aposCadastro), "Validação deixou registros incompletos");
 
         OrdemServico homonima = nova(cliente.getNome(), equipamento.getModelo(), prefixo + " nomes iguais");
@@ -126,11 +130,37 @@ final class VerificarCadastroDireto {
             frame[1].dispose();
             frame[2] = new TelaOrdensServico();
         }); aguardar(frame[2], true);
+        String defeitoContato = prefixo + " contato pela tela";
         edt(() -> {
             conferir(campo(frame[2], "txtCliente") instanceof JTextField && campo(frame[2], "txtEquipamento") instanceof JTextField,
                     "A OS ainda exige selecionar cliente/aparelho");
-            imagem(frame[2], "assistencia-ordens-direto.png"); frame[2].dispose();
+            imagem(frame[2], "assistencia-ordens-direto.png");
+            ((JTextField) campo(frame[2], "txtCliente")).setText(prefixo + " cliente com telefone");
+            ((JTextField) campo(frame[2], "txtTelefone")).setText("  (61) 91234-5678  ");
+            ((JTextField) campo(frame[2], "txtEquipamento")).setText("Notebook");
+            ((JComboBox<?>) campo(frame[2], "cmbTecnico")).setSelectedIndex(1);
+            ((JTextArea) campo(frame[2], "txtDefeito")).setText(defeitoContato);
+            ((JButton) campo(frame[2], "btnSalvar")).doClick();
         });
-        System.out.println("OK: OS só com nomes, rollback sem cadastros órfãos, edição sem duplicação e relatório com dados opcionais.");
+        aguardar(frame[2], true);
+        OrdemServico comContato = controller.listar().stream()
+                .filter(o -> defeitoContato.equals(o.getDefeitoRelatado())).findFirst().orElseThrow();
+        conferir("(61) 91234-5678".equals(comContato.getClienteTelefone()), "Telefone não foi gravado no cadastro do cliente");
+        edt(() -> {
+            var telefone = (JTextField) campo(frame[2], "txtTelefone");
+            conferir(telefone.getText().isEmpty(), "Telefone não foi limpo após salvar");
+            selecionar((JTable) campo(frame[2], "tabelaRegistros"), comContato.getId());
+            ((JButton) campo(frame[2], "btnEditar")).doClick();
+            conferir("(61) 91234-5678".equals(telefone.getText()), "Telefone não foi carregado na edição da OS");
+            telefone.setText("(61) 99876-5432");
+            ((JButton) campo(frame[2], "btnSalvar")).doClick();
+        });
+        aguardar(frame[2], true);
+        OrdemServico atualizada = carregar(controller, comContato.getId());
+        conferir("(61) 99876-5432".equals(atualizada.getClienteTelefone())
+                && atualizada.getClienteId() == comContato.getClienteId(),
+                "Editar telefone pela OS não atualizou o mesmo cliente");
+        edt(() -> frame[2].dispose());
+        System.out.println("OK: OS com telefone opcional, edição de contato, rollback sem cadastros órfãos e relatório com dados opcionais.");
     }
 }

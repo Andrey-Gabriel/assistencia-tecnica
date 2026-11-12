@@ -9,7 +9,7 @@ import java.util.List;
 public class OrdemServicoDAO {
     public List<OrdemServico> listar() throws SQLException {
         List<OrdemServico> lista = new ArrayList<>();
-        String sql = "SELECT os.*, c.nome AS cliente_nome, t.nome AS tecnico_nome, "
+        String sql = "SELECT os.*, c.nome AS cliente_nome, c.telefone AS cliente_telefone, t.nome AS tecnico_nome, "
                 + "e.modelo AS equipamento_modelo, CONCAT(CONCAT_WS(' / ', ce.nome, NULLIF(TRIM(CONCAT_WS(' ', e.marca, e.modelo)), '')), ' (#', e.id, ')') AS equipamento_nome "
                 + "FROM ordem_servico os JOIN cliente c ON c.id=os.cliente_id "
                 + "JOIN tecnico t ON t.id=os.tecnico_id JOIN equipamento e ON e.id=os.equipamento_id "
@@ -22,6 +22,7 @@ public class OrdemServicoDAO {
                 os.setId(r.getInt("id")); os.setClienteId(r.getInt("cliente_id"));
                 os.setTecnicoId(r.getInt("tecnico_id")); os.setEquipamentoId(r.getInt("equipamento_id"));
                 os.setClienteNome(r.getString("cliente_nome")); os.setTecnicoNome(r.getString("tecnico_nome"));
+                os.setClienteTelefone(r.getString("cliente_telefone"));
                 os.setEquipamentoNome(r.getString("equipamento_nome"));
                 os.setEquipamentoModelo(r.getString("equipamento_modelo"));
                 os.setDataAbertura(r.getTimestamp("data_abertura").toLocalDateTime());
@@ -53,10 +54,19 @@ public class OrdemServicoDAO {
             Savepoint inicio = c.setSavepoint();
             try {
                 Vinculos anteriores = os.getId() == 0 ? null : vinculos(c, os.getId());
-                int clienteId = anteriores != null && mesmoNome(os.getClienteNome(), anteriores.clienteNome())
-                        ? anteriores.clienteId() : inserirNome(c, "INSERT INTO cliente (nome) VALUES (?)", os.getClienteNome());
+                int clienteId;
+                if (anteriores != null && mesmoNome(os.getClienteNome(), anteriores.clienteNome())) {
+                    clienteId = anteriores.clienteId();
+                    // Telefone nulo na edição significa que o campo não foi alterado.
+                    if (os.getClienteTelefone() != null) {
+                        atualizarTelefone(c, clienteId, os.getClienteTelefone());
+                    }
+                } else {
+                    clienteId = inserirCadastro(c, "INSERT INTO cliente (nome, telefone) VALUES (?, NULLIF(?, ''))",
+                            os.getClienteNome(), os.getClienteTelefone());
+                }
                 int equipamentoId = anteriores != null && mesmoNome(os.getEquipamentoModelo(), anteriores.equipamentoModelo())
-                        ? anteriores.equipamentoId() : inserirNome(c, "INSERT INTO equipamento (modelo) VALUES (?)", os.getEquipamentoModelo());
+                        ? anteriores.equipamentoId() : inserirCadastro(c, "INSERT INTO equipamento (modelo) VALUES (?)", os.getEquipamentoModelo());
                 int ordemId = salvar(c, os, clienteId, equipamentoId);
                 c.commit();
                 os.setId(ordemId); os.setClienteId(clienteId); os.setEquipamentoId(equipamentoId);
@@ -83,9 +93,20 @@ public class OrdemServicoDAO {
 
     private boolean mesmoNome(String nome, String existente) { return nome.trim().equalsIgnoreCase(existente.trim()); }
 
-    private int inserirNome(Connection c, String sql, String nome) throws SQLException {
+    private void atualizarTelefone(Connection c, int clienteId, String telefone) throws SQLException {
+        try (PreparedStatement p = c.prepareStatement("UPDATE cliente SET telefone = NULLIF(?, '') WHERE id = ?")) {
+            p.setString(1, telefone);
+            p.setInt(2, clienteId);
+            p.executeUpdate();
+        }
+    }
+
+    private int inserirCadastro(Connection c, String sql, String... valores) throws SQLException {
         try (PreparedStatement p = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            p.setString(1, nome); p.executeUpdate();
+            for (int i = 0; i < valores.length; i++) {
+                p.setString(i + 1, valores[i]);
+            }
+            p.executeUpdate();
             try (ResultSet chave = p.getGeneratedKeys()) {
                 if (!chave.next()) throw new SQLException("Não foi possível identificar o novo cadastro.");
                 return chave.getInt(1);

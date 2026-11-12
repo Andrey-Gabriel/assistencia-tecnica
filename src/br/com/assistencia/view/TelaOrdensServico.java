@@ -18,9 +18,19 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         cmbStatus.setModel(new javax.swing.DefaultComboBoxModel<>(StatusOrdem.values()));
         Formularios.tabela(tabelaRegistros, Integer.class, java.time.LocalDateTime.class,
                 String.class, String.class, String.class, StatusOrdem.class, java.math.BigDecimal.class, java.time.LocalDateTime.class);
+        int[] larguras = {52, 126, 164, 206, 148, 104, 132, 126};
+        for (int i = 0; i < larguras.length; i++) {
+            tabelaRegistros.getColumnModel().getColumn(i).setPreferredWidth(larguras[i]);
+        }
+        tabelaRegistros.getColumnModel().getColumn(1).setMinWidth(120);
+        tabelaRegistros.getColumnModel().getColumn(6).setMinWidth(130);
+        tabelaRegistros.getColumnModel().getColumn(7).setMinWidth(120);
         suporte = new CadastroSuporte<OrdemServico>(this, tabelaRegistros, lblModo, lblStatus,
                 btnNovo, btnSalvar, btnEditar, btnExcluir, btnAtualizar, btnFechar,
-                txtCliente, cmbTecnico, txtEquipamento, cmbStatus, txtValor, txtDefeito, txtDiagnostico) {
+                txtCliente, txtTelefone, txtEquipamento, cmbTecnico, cmbStatus, txtValor, txtDefeito, txtDiagnostico) {
+            private String nomeClienteOriginal;
+            private String telefoneOriginal;
+
             @Override protected List<OrdemServico> listarBanco() throws Exception { return controller.listar(); }
             @Override protected Object carregarOpcoes() throws Exception {
                 return new DadosOpcoes(controller.listarResponsaveis());
@@ -32,6 +42,11 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
             @Override protected OrdemServico lerFormulario(int id) {
                 OrdemServico os = new OrdemServico();
                 os.setId(id); os.setClienteNome(txtCliente.getText()); os.setTecnicoId(Formularios.id(cmbTecnico));
+                String telefone = txtTelefone.getText();
+                if (id == 0 || !os.getClienteNome().trim().equalsIgnoreCase(nomeClienteOriginal)
+                        || !telefone.equals(telefoneOriginal)) {
+                    os.setClienteTelefone(telefone);
+                }
                 os.setEquipamentoModelo(txtEquipamento.getText()); os.setStatus((StatusOrdem) cmbStatus.getSelectedItem());
                 os.setDefeitoRelatado(txtDefeito.getText()); os.setDiagnostico(txtDiagnostico.getText());
                 os.setValorServico(Formularios.lerValor(txtValor.getText()));
@@ -41,16 +56,22 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
             @Override protected void excluirBanco(int id) throws Exception { controller.excluir(id); }
             @Override protected void preencherFormulario(OrdemServico os) {
                 txtCliente.setText(os.getClienteNome()); Formularios.selecionar(cmbTecnico, os.getTecnicoId());
+                txtTelefone.setText(os.getClienteTelefone());
+                nomeClienteOriginal = txtCliente.getText().trim();
+                telefoneOriginal = txtTelefone.getText();
                 txtEquipamento.setText(os.getEquipamentoModelo()); cmbStatus.setSelectedItem(os.getStatus());
-                txtAbertura.setText(Formularios.data(os.getDataAbertura()));
-                txtEncerramento.setText(os.getDataEncerramento() == null ? "Em andamento" : Formularios.data(os.getDataEncerramento()));
+                String encerramento = os.getDataEncerramento() == null
+                        ? "Em andamento" : Formularios.data(os.getDataEncerramento());
+                lblDatas.setText("Abertura: " + Formularios.data(os.getDataAbertura())
+                        + "   |   Encerramento: " + encerramento);
                 txtDefeito.setText(os.getDefeitoRelatado()); txtDiagnostico.setText(os.getDiagnostico() == null ? "" : os.getDiagnostico());
                 txtValor.setText(Formularios.valorEditavel(os.getValorServico()));
             }
             @Override protected void limparFormulario() {
                 txtCliente.setText(""); Formularios.selecionar(cmbTecnico, 0); txtEquipamento.setText("");
+                txtTelefone.setText("");
                 cmbStatus.setSelectedItem(StatusOrdem.ABERTA); txtDefeito.setText(""); txtDiagnostico.setText(""); txtValor.setText("");
-                txtAbertura.setText("Automática ao salvar"); txtEncerramento.setText("Automático ao encerrar");
+                lblDatas.setText("Abertura e encerramento automáticos");
             }
             @Override protected int id(OrdemServico os) { return os.getId(); }
             @Override protected Object[] linha(OrdemServico os) {
@@ -91,7 +112,7 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         lblTitulo = new javax.swing.JLabel();
-        lblDescricao = new javax.swing.JLabel();
+        lblDatas = new javax.swing.JLabel();
         separador = new javax.swing.JSeparator();
         separador.setBackground(new java.awt.Color(246, 247, 249));
         separador.setForeground(new java.awt.Color(201, 207, 216));
@@ -100,6 +121,10 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         txtCliente = new javax.swing.JTextField();
         txtCliente.setBackground(new java.awt.Color(255, 255, 255));
         txtCliente.setForeground(new java.awt.Color(40, 47, 56));
+        lblTxtTelefone = new javax.swing.JLabel();
+        txtTelefone = new javax.swing.JTextField();
+        txtTelefone.setBackground(new java.awt.Color(255, 255, 255));
+        txtTelefone.setForeground(new java.awt.Color(40, 47, 56));
         lblCmbTecnico = new javax.swing.JLabel();
         cmbTecnico = new javax.swing.JComboBox<>();
         cmbTecnico.setBackground(new java.awt.Color(255, 255, 255));
@@ -116,14 +141,6 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         txtValor = new javax.swing.JTextField();
         txtValor.setBackground(new java.awt.Color(255, 255, 255));
         txtValor.setForeground(new java.awt.Color(40, 47, 56));
-        lblTxtAbertura = new javax.swing.JLabel();
-        txtAbertura = new javax.swing.JTextField();
-        txtAbertura.setBackground(new java.awt.Color(246, 247, 249));
-        txtAbertura.setForeground(new java.awt.Color(40, 47, 56));
-        lblTxtEncerramento = new javax.swing.JLabel();
-        txtEncerramento = new javax.swing.JTextField();
-        txtEncerramento.setBackground(new java.awt.Color(246, 247, 249));
-        txtEncerramento.setForeground(new java.awt.Color(40, 47, 56));
         lblTxtDefeito = new javax.swing.JLabel();
         scrolltxtDefeito = new javax.swing.JScrollPane();
         txtDefeito = new javax.swing.JTextArea();
@@ -134,7 +151,6 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         txtDiagnostico = new javax.swing.JTextArea();
         txtDiagnostico.setBackground(new java.awt.Color(255, 255, 255));
         txtDiagnostico.setForeground(new java.awt.Color(40, 47, 56));
-        lblAjuda = new javax.swing.JLabel();
         btnNovo = new javax.swing.JButton();
         btnNovo.setOpaque(true);
         btnNovo.setContentAreaFilled(false);
@@ -168,6 +184,9 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         btnFechar.setBackground(new java.awt.Color(255, 255, 255));
         btnFechar.setForeground(new java.awt.Color(40, 47, 56));
         btnFechar.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        separadorListagem = new javax.swing.JSeparator();
+        separadorListagem.setBackground(new java.awt.Color(246, 247, 249));
+        separadorListagem.setForeground(new java.awt.Color(201, 207, 216));
         lblListagem = new javax.swing.JLabel();
         scrollRegistros = new javax.swing.JScrollPane();
         tabelaRegistros = new javax.swing.JTable();
@@ -176,14 +195,14 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         lblStatus = new javax.swing.JLabel();
         setDefaultCloseOperation(0);
         setTitle("Ordens de serviço | Assistência Técnica");
-        setMinimumSize(new java.awt.Dimension(1040, 820));
-        setPreferredSize(new java.awt.Dimension(1120, 900));
+        setMinimumSize(new java.awt.Dimension(1040, 750));
+        setPreferredSize(new java.awt.Dimension(1120, 840));
         lblTitulo.setText("Ordens de serviço");
         lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 22));
         lblTitulo.setForeground(new java.awt.Color(40, 47, 56));
-        lblDescricao.setText("Informe os nomes do cliente e do equipamento para abrir o atendimento.");
-        lblDescricao.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblDescricao.setForeground(new java.awt.Color(102, 111, 123));
+        lblDatas.setText("Abertura e encerramento automáticos");
+        lblDatas.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        lblDatas.setForeground(new java.awt.Color(102, 111, 123));
         lblModo.setText("Nova ordem de serviço");
         lblModo.setFont(new java.awt.Font("Segoe UI", 1, 14));
         lblModo.setForeground(new java.awt.Color(40, 47, 56));
@@ -191,6 +210,11 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         lblTxtCliente.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblTxtCliente.setForeground(new java.awt.Color(40, 47, 56));
         txtCliente.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtTelefone.setText("Telefone para contato");
+        lblTxtTelefone.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblTxtTelefone.setForeground(new java.awt.Color(40, 47, 56));
+        lblTxtTelefone.setLabelFor(txtTelefone);
+        txtTelefone.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblCmbTecnico.setText("Técnico responsável *");
         lblCmbTecnico.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblCmbTecnico.setForeground(new java.awt.Color(40, 47, 56));
@@ -207,16 +231,6 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         lblTxtValor.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblTxtValor.setForeground(new java.awt.Color(40, 47, 56));
         txtValor.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblTxtAbertura.setText("Abertura");
-        lblTxtAbertura.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblTxtAbertura.setForeground(new java.awt.Color(40, 47, 56));
-        txtAbertura.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        txtAbertura.setEditable(false);
-        lblTxtEncerramento.setText("Encerramento");
-        lblTxtEncerramento.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblTxtEncerramento.setForeground(new java.awt.Color(40, 47, 56));
-        txtEncerramento.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        txtEncerramento.setEditable(false);
         lblTxtDefeito.setText("Defeito relatado * (até 500 caracteres)");
         lblTxtDefeito.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblTxtDefeito.setForeground(new java.awt.Color(40, 47, 56));
@@ -231,9 +245,6 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         txtDiagnostico.setFont(new java.awt.Font("Segoe UI", 0, 13));
         txtDiagnostico.setLineWrap(true);
         txtDiagnostico.setWrapStyleWord(true);
-        lblAjuda.setText("Cliente e equipamento são cadastrados ao salvar a OS. Os demais dados podem ser completados nos cadastros.");
-        lblAjuda.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        lblAjuda.setForeground(new java.awt.Color(102, 111, 123));
         btnNovo.setText("Novo");
         btnNovo.addActionListener(this::btnNovoActionPerformed);
         btnSalvar.setText("Salvar");
@@ -241,15 +252,15 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         btnSalvar.setBackground(new java.awt.Color(43, 76, 110));
         btnSalvar.setForeground(new java.awt.Color(255, 255, 255));
         btnSalvar.addActionListener(this::btnSalvarActionPerformed);
-        btnEditar.setText("Editar selecionado");
+        btnEditar.setText("Editar");
         btnEditar.addActionListener(this::btnEditarActionPerformed);
-        btnExcluir.setText("Excluir selecionado");
+        btnExcluir.setText("Excluir");
         btnExcluir.addActionListener(this::btnExcluirActionPerformed);
         btnAtualizar.setText("Atualizar lista");
         btnAtualizar.addActionListener(this::btnAtualizarActionPerformed);
         btnFechar.setText("Fechar");
         btnFechar.addActionListener(this::btnFecharActionPerformed);
-        lblListagem.setText("Ordens de serviço");
+        lblListagem.setText("Ordens cadastradas");
         lblListagem.setFont(new java.awt.Font("Segoe UI", 1, 14));
         lblListagem.setForeground(new java.awt.Color(40, 47, 56));
         scrollRegistros.setViewportView(tabelaRegistros);
@@ -271,60 +282,61 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
             .addGroup(layout.createSequentialGroup()
                 .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblTitulo, -2, -2, -2)
-                    .addComponent(lblDescricao, -2, -2, -2)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblTitulo, -2, -2, -2)
+                        .addGap(16, 16, 32767)
+                        .addComponent(btnFechar, 84, 84, 84))
                     .addComponent(separador, 0, -1, 32767)
-                    .addComponent(lblModo, -2, -2, -2)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblModo, -2, -2, -2)
+                        .addGap(16, 16, 32767)
+                        .addComponent(lblDatas, -2, -2, -2))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblTxtCliente, -2, -2, -2)
-                            .addComponent(txtCliente, 0, 350, 32767))
-                        .addGap(16, 16, 16)
+                            .addComponent(txtCliente, 0, 560, 32767))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblCmbTecnico, -2, -2, -2)
-                            .addComponent(cmbTecnico, 0, 350, 32767))
-                        .addGap(16, 16, 16)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblCmbStatus, -2, -2, -2)
-                            .addComponent(cmbStatus, 0, 220, 32767)))
+                            .addComponent(lblTxtTelefone, -2, -2, -2)
+                            .addComponent(txtTelefone, 0, 410, 32767)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblTxtEquipamento, -2, -2, -2)
-                            .addComponent(txtEquipamento, 0, 720, 32767))
-                        .addGap(16, 16, 16)
+                            .addComponent(txtEquipamento, 0, 560, 32767))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblTxtValor, -2, -2, -2)
-                            .addComponent(txtValor, 0, 220, 32767)))
+                            .addComponent(lblCmbTecnico, -2, -2, -2)
+                            .addComponent(cmbTecnico, 0, 410, 32767)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblTxtAbertura, -2, -2, -2)
-                            .addComponent(txtAbertura, 0, 450, 32767))
-                        .addGap(16, 16, 16)
+                            .addComponent(lblCmbStatus, -2, -2, -2)
+                            .addComponent(cmbStatus, 0, 560, 32767))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblTxtEncerramento, -2, -2, -2)
-                            .addComponent(txtEncerramento, 0, 450, 32767)))
+                            .addComponent(lblTxtValor, -2, -2, -2)
+                            .addComponent(txtValor, 0, 410, 32767)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblTxtDefeito, -2, -2, -2)
-                            .addComponent(scrolltxtDefeito, 0, 450, 32767))
-                        .addGap(16, 16, 16)
+                            .addComponent(scrolltxtDefeito, 0, 560, 32767))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblTxtDiagnostico, -2, -2, -2)
-                            .addComponent(scrolltxtDiagnostico, 0, 450, 32767)))
-                    .addComponent(lblAjuda, -2, -2, -2)
+                            .addComponent(scrolltxtDiagnostico, 0, 410, 32767)))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnNovo, -2, 76, 76)
-                        .addGap(8, 8, 8)
-                        .addComponent(btnSalvar, -2, 156, 156)
-                        .addGap(8, 8, 8)
-                        .addComponent(btnEditar, -2, 150, 150)
-                        .addGap(8, 8, 8)
-                        .addComponent(btnExcluir, -2, 150, 150)
-                        .addGap(8, 8, 8)
-                        .addComponent(btnAtualizar, -2, 120, 120)
                         .addGap(0, 0, 32767)
-                        .addComponent(btnFechar, -2, 80, 80))
-                    .addComponent(lblListagem, -2, -2, -2)
+                        .addComponent(btnNovo, 86, 86, 86)
+                        .addGap(8, 8, 8)
+                        .addComponent(btnSalvar, 158, 158, 158))
+                    .addComponent(separadorListagem, 0, -1, 32767)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblListagem, -2, -2, -2)
+                        .addGap(16, 16, 32767)
+                        .addComponent(btnEditar, 90, 90, 90)
+                        .addGap(8, 8, 8)
+                        .addComponent(btnExcluir, 90, 90, 90)
+                        .addGap(8, 8, 8)
+                        .addComponent(btnAtualizar, 120, 120, 120))
                     .addComponent(scrollRegistros, 0, -1, 32767)
                     .addComponent(lblStatus, 0, -1, 32767))
                 .addGap(28, 28, 28))
@@ -332,66 +344,67 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(lblTitulo, -2, 32, 32)
-                .addGap(4, 4, 4)
-                .addComponent(lblDescricao, -2, 22, 22)
+                .addGap(22, 22, 22)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(lblTitulo, 36, 36, 36)
+                    .addComponent(btnFechar, 32, 32, 32))
+                .addGap(12, 12, 12)
+                .addComponent(separador, 1, 1, 1)
                 .addGap(16, 16, 16)
-                .addComponent(separador, -2, 2, 2)
-                .addGap(14, 14, 14)
-                .addComponent(lblModo, -2, 24, 24)
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblTxtCliente, -2, 20, 20)
-                    .addComponent(lblCmbTecnico, -2, 20, 20)
-                    .addComponent(lblCmbStatus, -2, 20, 20))
-                .addGap(4, 4, 4)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtCliente, -2, 34, 34)
-                    .addComponent(cmbTecnico, -2, 34, 34)
-                    .addComponent(cmbStatus, -2, 34, 34))
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblTxtEquipamento, -2, 20, 20)
-                    .addComponent(lblTxtValor, -2, 20, 20))
-                .addGap(4, 4, 4)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtEquipamento, -2, 34, 34)
-                    .addComponent(txtValor, -2, 34, 34))
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblTxtAbertura, -2, 20, 20)
-                    .addComponent(lblTxtEncerramento, -2, 20, 20))
-                .addGap(4, 4, 4)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtAbertura, -2, 34, 34)
-                    .addComponent(txtEncerramento, -2, 34, 34))
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblTxtDefeito, -2, 20, 20)
-                    .addComponent(lblTxtDiagnostico, -2, 20, 20))
-                .addGap(4, 4, 4)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrolltxtDefeito, -2, 72, 72)
-                    .addComponent(scrolltxtDiagnostico, -2, 72, 72))
-                .addGap(10, 10, 10)
-                .addComponent(lblAjuda, -2, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(lblModo, 24, 24, 24)
+                    .addComponent(lblDatas, 20, 20, 20))
                 .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnNovo, -2, 36, 36)
-                    .addComponent(btnSalvar, -2, 36, 36)
-                    .addComponent(btnEditar, -2, 36, 36)
-                    .addComponent(btnExcluir, -2, 36, 36)
-                    .addComponent(btnAtualizar, -2, 36, 36)
-                    .addComponent(btnFechar, -2, 36, 36))
-                .addGap(18, 18, 18)
-                .addComponent(lblListagem, -2, 24, 24)
+                    .addComponent(lblTxtCliente, 18, 18, 18)
+                    .addComponent(lblTxtTelefone, 18, 18, 18))
+                .addGap(5, 5, 5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtCliente, 34, 34, 34)
+                    .addComponent(txtTelefone, 34, 34, 34))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblTxtEquipamento, 18, 18, 18)
+                    .addComponent(lblCmbTecnico, 18, 18, 18))
+                .addGap(5, 5, 5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtEquipamento, 34, 34, 34)
+                    .addComponent(cmbTecnico, 34, 34, 34))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCmbStatus, 18, 18, 18)
+                    .addComponent(lblTxtValor, 18, 18, 18))
+                .addGap(5, 5, 5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cmbStatus, 34, 34, 34)
+                    .addComponent(txtValor, 34, 34, 34))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblTxtDefeito, 18, 18, 18)
+                    .addComponent(lblTxtDiagnostico, 18, 18, 18))
+                .addGap(5, 5, 5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scrolltxtDefeito, 76, 76, 76)
+                    .addComponent(scrolltxtDiagnostico, 76, 76, 76))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(btnNovo, 36, 36, 36)
+                    .addComponent(btnSalvar, 36, 36, 36))
+                .addGap(20, 20, 20)
+                .addComponent(separadorListagem, 1, 1, 1)
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(lblListagem, 24, 24, 24)
+                    .addComponent(btnEditar, 32, 32, 32)
+                    .addComponent(btnExcluir, 32, 32, 32)
+                    .addComponent(btnAtualizar, 32, 32, 32))
                 .addGap(8, 8, 8)
-                .addComponent(scrollRegistros, 100, 170, 32767)
-                .addGap(10, 10, 10)
-                .addComponent(lblStatus, -2, 20, 20)
-                .addGap(20, 20, 20))
+                .addComponent(scrollRegistros, 100, 180, 32767)
+                .addGap(8, 8, 8)
+                .addComponent(lblStatus, 20, 20, 20)
+                .addGap(18, 18, 18))
         );
+
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
@@ -400,11 +413,13 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblTitulo;
-    private javax.swing.JLabel lblDescricao;
+    private javax.swing.JLabel lblDatas;
     private javax.swing.JSeparator separador;
     private javax.swing.JLabel lblModo;
     private javax.swing.JLabel lblTxtCliente;
     private javax.swing.JTextField txtCliente;
+    private javax.swing.JLabel lblTxtTelefone;
+    private javax.swing.JTextField txtTelefone;
     private javax.swing.JLabel lblCmbTecnico;
     private javax.swing.JComboBox<Opcao> cmbTecnico;
     private javax.swing.JLabel lblCmbStatus;
@@ -413,23 +428,19 @@ public class TelaOrdensServico extends javax.swing.JFrame implements TelaGerenci
     private javax.swing.JTextField txtEquipamento;
     private javax.swing.JLabel lblTxtValor;
     private javax.swing.JTextField txtValor;
-    private javax.swing.JLabel lblTxtAbertura;
-    private javax.swing.JTextField txtAbertura;
-    private javax.swing.JLabel lblTxtEncerramento;
-    private javax.swing.JTextField txtEncerramento;
     private javax.swing.JLabel lblTxtDefeito;
     private javax.swing.JScrollPane scrolltxtDefeito;
     private javax.swing.JTextArea txtDefeito;
     private javax.swing.JLabel lblTxtDiagnostico;
     private javax.swing.JScrollPane scrolltxtDiagnostico;
     private javax.swing.JTextArea txtDiagnostico;
-    private javax.swing.JLabel lblAjuda;
     private javax.swing.JButton btnNovo;
     private javax.swing.JButton btnSalvar;
     private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnAtualizar;
     private javax.swing.JButton btnFechar;
+    private javax.swing.JSeparator separadorListagem;
     private javax.swing.JLabel lblListagem;
     private javax.swing.JScrollPane scrollRegistros;
     private javax.swing.JTable tabelaRegistros;
