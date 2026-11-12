@@ -37,6 +37,13 @@ public class OrdemServicoController {
         Sessao.validarAcesso();
         if (os == null || os.getId() < 0) throw new IllegalArgumentException("Ordem de serviço inválida.");
         os.setClienteNome(nomeObrigatorio(os.getClienteNome(), "cliente"));
+        if (os.getClienteTelefone() != null) {
+            String telefone = os.getClienteTelefone().trim();
+            if (telefone.length() > 25) {
+                throw new IllegalArgumentException("O telefone para contato deve ter até 25 caracteres.");
+            }
+            os.setClienteTelefone(telefone);
+        }
         os.setEquipamentoModelo(nomeObrigatorio(os.getEquipamentoModelo(), "equipamento"));
         validarConteudo(os);
         dao.salvarAtendimento(os);

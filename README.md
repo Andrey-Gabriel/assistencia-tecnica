@@ -60,7 +60,7 @@ O padrão visual comum está em `src/br/com/assistencia/view/EstiloVisual.java`:
 ## Fluxo de atendimento
 
 1. Confira o técnico responsável. O administrador gerencia os cadastros de técnicos.
-2. Abra **Ordens de serviço** e digite o nome do cliente e o nome do equipamento, sem precisar cadastrá-los antes em outras telas.
+2. Abra **Ordens de serviço** e digite o nome do cliente e o nome do equipamento, sem precisar cadastrá-los antes em outras telas. Se tiver o telefone para contato, informe-o no mesmo formulário. O número fica no cadastro do cliente e pode ser atualizado ao editar a OS.
 3. Selecione o técnico e o status, descreva o defeito e clique em **Salvar**. Cliente, equipamento e OS são gravados juntos; se a gravação falhar, os cadastros novos são desfeitos. A data de abertura é automática.
 4. Use **Editar selecionado** para registrar diagnóstico, orçamento e andamento. O valor pode ficar vazio enquanto não houver orçamento; aceita valores como `150,00` ou `1.234,56`.
 5. Marcar como **Concluída**, **Entregue** ou **Cancelada** registra o encerramento automaticamente. Alterações entre esses três status preservam o encerramento já registrado. Voltar para **Aberta**, **Em análise** ou **Em reparo** reabre a ordem e limpa essa data.
