@@ -1,9 +1,9 @@
 package br.com.assistencia;
 
-import br.com.assistencia.controller.ClienteController;
-import br.com.assistencia.model.Cliente;
-import br.com.assistencia.view.TelaCadastroCliente;
-import br.com.assistencia.view.TelaPrincipal;
+import br.com.assistencia.entidade.ManterCliente;
+import br.com.assistencia.controle.Cliente;
+import br.com.assistencia.visao.TelaCadastroCliente;
+import br.com.assistencia.visao.TelaPrincipal;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -21,7 +21,7 @@ import javax.swing.*;
  */
 class VerificarFluxos {
     static volatile boolean falharConexao;
-    static TelaCadastroCliente tela; static br.com.assistencia.view.TelaCadastroTecnico janelaTecnico;
+    static TelaCadastroCliente tela; static br.com.assistencia.visao.TelaCadastroTecnico janelaTecnico;
     static String prefixo = "TESTE-" + UUID.randomUUID();
     static void conferir(boolean condicao, String mensagem) {
         if (!condicao) throw new AssertionError(mensagem);
@@ -50,7 +50,7 @@ class VerificarFluxos {
     }
     static void imagem(JFrame janela, String arquivo) throws Exception {
         janela.validate();
-        if (janela instanceof TelaCadastroCliente || janela instanceof br.com.assistencia.view.TelaCadastroTecnico) {
+        if (janela instanceof TelaCadastroCliente || janela instanceof br.com.assistencia.visao.TelaCadastroTecnico) {
             JLabel titulo = (JLabel) campo(janela,"lblTitulo");
             JTextField nome = (JTextField) campo(janela,"txtNome");
             JScrollPane lista = (JScrollPane) campo(janela, janela instanceof TelaCadastroCliente ? "scrollClientes" : "scrollTecnicos");
@@ -68,7 +68,7 @@ class VerificarFluxos {
     static void ausente(Checked teste, String mensagem) throws Exception {
         try { teste.run(); throw new AssertionError(mensagem); } catch (SQLException esperado) { }
     }
-    static Cliente buscar(ClienteController c, String nome) throws Exception {
+    static Cliente buscar(ManterCliente c, String nome) throws Exception {
         return c.listar().stream().filter(x -> x.getNome().equals(nome)).findFirst().orElseThrow();
     }
     public static void main(String[] args) throws Exception {
@@ -99,8 +99,8 @@ class VerificarFluxos {
                 public java.util.logging.Logger getParentLogger() { return java.util.logging.Logger.getGlobal(); }
             };
             DriverManager.registerDriver(wrapper);
-            br.com.assistencia.controller.Sessao.encerrar();
-            ClienteController bloqueado = new ClienteController();
+            br.com.assistencia.entidade.Sessao.encerrar();
+            ManterCliente bloqueado = new ManterCliente();
             try { bloqueado.listar(); throw new AssertionError("Cliente acessivel sem login"); }
             catch (SecurityException esperado) { }
             try { new TelaPrincipal(); throw new AssertionError("Menu abriu sem login"); }
@@ -116,84 +116,83 @@ class VerificarFluxos {
             try (PreparedStatement p = banco.prepareStatement("INSERT INTO tecnico (nome,telefone,email,senha_hash,administrador) VALUES ('Administrador teste','11999999999',?,?,TRUE)")) {
                 p.setString(1, emailAdmin); p.setString(2, hash1); p.executeUpdate();
             }
-            var auth = new br.com.assistencia.controller.AutenticacaoController();
+            var auth = new br.com.assistencia.entidade.Autenticacao();
             invalido(() -> auth.entrar(emailAdmin, "senha errada".toCharArray()), "Login aceitou senha errada");
-            conferir(!br.com.assistencia.controller.Sessao.estaAutenticado(), "Sessao aberta apos falha");
+            conferir(!br.com.assistencia.entidade.Sessao.estaAutenticado(), "Sessao aberta apos falha");
             invalido(() -> auth.entrar("naoexiste-" + emailAdmin, senhaTeste), "Login aceitou usuario inexistente");
             try (Statement s = banco.createStatement(); ResultSet r = s.executeQuery("SELECT email FROM tecnico WHERE senha_hash IS NULL AND email IS NOT NULL LIMIT 1")) {
                 if (r.next()) { String emailSemSenha = r.getString(1); invalido(() -> auth.entrar(emailSemSenha, senhaTeste), "Tecnico sem senha entrou"); }
             }
             auth.entrar(emailAdmin.toUpperCase(), senhaTeste);
-            conferir(br.com.assistencia.controller.Sessao.ehAdministrador(), "Perfil admin nao carregou");
-            int idAdmin = br.com.assistencia.controller.Sessao.idTecnico();
-            var tecnicos = new br.com.assistencia.controller.TecnicoController();
+            conferir(br.com.assistencia.entidade.Sessao.ehAdministrador(), "Perfil admin nao carregou");
+            int idAdmin = br.com.assistencia.entidade.Sessao.idTecnico();
+            var tecnicos = new br.com.assistencia.entidade.ManterTecnico();
             String emailNormal = "normal-" + emailAdmin;
-            invalido(() -> tecnicos.cadastrar("Teste", "123", emailNormal, false,
+            invalido(() -> tecnicos.inserir("Teste", "123", emailNormal, false,
                     "Teste12".toCharArray(), "Teste12".toCharArray()), "Aceitou senha com 7 caracteres");
-            invalido(() -> tecnicos.cadastrar("Teste", "123", emailNormal, false, senhaTeste, "nao coincide".toCharArray()), "Aceitou confirmacao diferente");
-            tecnicos.cadastrar("Tecnico teste", "123", emailNormal, false, senhaTeste, senhaTeste);
-            var daoTecnicos = new br.com.assistencia.dao.TecnicoDAO();
-            var registroNormal = daoTecnicos.buscarCredencial(emailNormal);
-            conferir(registroNormal != null && !registroNormal.senhaHash().equals(new String(senhaTeste)), "Senha sem hash");
-            int idNormal = registroNormal.tecnico().getId();
-            tecnicos.atualizar(idNormal, "Tecnico alterado", "123", emailNormal, false, new char[0], new char[0]);
-            conferir(daoTecnicos.buscarCredencial(emailNormal).senhaHash().equals(registroNormal.senhaHash()), "Edicao em branco apagou senha");
+            invalido(() -> tecnicos.inserir("Teste", "123", emailNormal, false, senhaTeste, "nao coincide".toCharArray()), "Aceitou confirmacao diferente");
+            tecnicos.inserir("Tecnico teste", "123", emailNormal, false, senhaTeste, senhaTeste);
+            String hashNormal = hashTecnico(banco, emailNormal);
+            conferir(hashNormal != null && !hashNormal.equals(new String(senhaTeste)), "Senha sem hash");
+            int idNormal = tecnicos.listar().stream()
+                    .filter(t -> emailNormal.equals(t.getEmail())).findFirst().orElseThrow().getId();
+            tecnicos.alterar(idNormal, "Tecnico alterado", "123", emailNormal, false, new char[0], new char[0]);
+            conferir(hashNormal.equals(hashTecnico(banco, emailNormal)), "Edicao em branco apagou senha");
             invalido(() -> tecnicos.excluir(idAdmin), "Admin excluiu a propria conta");
-            invalido(() -> tecnicos.atualizar(idAdmin, "Admin", "123", emailAdmin, false, new char[0], new char[0]), "Admin removeu proprio perfil");
+            invalido(() -> tecnicos.alterar(idAdmin, "Admin", "123", emailAdmin, false, new char[0], new char[0]), "Admin removeu proprio perfil");
             auth.entrar(emailNormal, senhaTeste);
-            conferir(!br.com.assistencia.controller.Sessao.ehAdministrador(), "Tecnico normal virou admin");
+            conferir(!br.com.assistencia.entidade.Sessao.ehAdministrador(), "Tecnico normal virou admin");
             try { tecnicos.listar(); throw new AssertionError("Tecnico normal gerenciou usuarios"); } catch (SecurityException esperado) { }
-            new ClienteController().listar();
+            new ManterCliente().listar();
             VerificarModulos.tecnicoComum();
             edt(() -> {
                 TelaPrincipal normal = new TelaPrincipal();
                 conferir(!((JButton) campo(normal, "btnTecnicos")).isVisible(), "Menu admin visivel ao tecnico");
                 normal.dispose();
-                try { new br.com.assistencia.view.TelaCadastroTecnico(); throw new AssertionError("Tela de tecnico abriu sem perfil admin"); }
+                try { new br.com.assistencia.visao.TelaCadastroTecnico(); throw new AssertionError("Tela de tecnico abriu sem perfil admin"); }
                 catch (SecurityException esperado) { }
             });
             auth.entrar(emailAdmin, senhaTeste);
             char[] novaSenha = "Nova1234".toCharArray();
-            tecnicos.atualizar(idNormal, "Tecnico alterado", "123", emailNormal, false, novaSenha, novaSenha);
+            tecnicos.alterar(idNormal, "Tecnico alterado", "123", emailNormal, false, novaSenha, novaSenha);
             invalido(() -> auth.entrar(emailNormal, senhaTeste), "Senha anterior continuou valida");
             auth.entrar(emailNormal, novaSenha);
-            br.com.assistencia.controller.Sessao.encerrar();
-            try { new ClienteController().listar(); throw new AssertionError("Logout deixou acesso aberto"); } catch (SecurityException esperado) { }
+            br.com.assistencia.entidade.Sessao.encerrar();
+            try { new ManterCliente().listar(); throw new AssertionError("Logout deixou acesso aberto"); } catch (SecurityException esperado) { }
             auth.entrar(emailAdmin, senhaTeste);
             try (PreparedStatement p = banco.prepareStatement("UPDATE tecnico SET administrador=FALSE WHERE id=?")) { p.setInt(1,idAdmin); p.executeUpdate(); }
             try { tecnicos.listar(); throw new AssertionError("Perfil admin revogado continuou autorizado"); } catch (SecurityException esperado) { }
             try (PreparedStatement p = banco.prepareStatement("UPDATE tecnico SET administrador=TRUE WHERE id=?")) { p.setInt(1,idAdmin); p.executeUpdate(); }
-            try {
-                daoTecnicos.criarPrimeiroAdministrador(br.com.assistencia.controller.TecnicoController.validar(0,"Outro admin","123","outro-"+emailAdmin,true), hash1);
-                throw new AssertionError("Configuracao inicial aceitou outro administrador");
-            } catch (IllegalArgumentException esperado) { }
+            invalido(() -> tecnicos.criarPrimeiroAdministrador(
+                    "Outro admin", "123", "outro-" + emailAdmin, senhaTeste, senhaTeste),
+                    "Configuracao inicial aceitou outro administrador");
             VerificarSessaoRevogada.executar(banco, emailNormal, novaSenha, emailAdmin, senhaTeste);
             tecnicos.excluir(idNormal);
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
             edt(() -> {
-                var login = new br.com.assistencia.view.TelaLogin(); imagem(login,"assistencia-login.png"); login.dispose();
-                var cadTecnico = new br.com.assistencia.view.TelaCadastroTecnico();
+                var login = new br.com.assistencia.visao.TelaLogin(); imagem(login,"assistencia-login.png"); login.dispose();
+                var cadTecnico = new br.com.assistencia.visao.TelaCadastroTecnico();
                 // Aguardar a carga fora da EDT para permitir a conclusao do SwingWorker.
                 janelaTecnico = cadTecnico;
             });
             System.out.println("OK: hashes com salt, login valido/invalido, tecnico sem senha, logout, perfil admin, revogacao e troca de senha.");
-            ClienteController c = new ClienteController();
+            ManterCliente c = new ManterCliente();
             int quantidade = c.listar().size();
-            invalido(() -> c.cadastrar(" ", "123", ""), "Aceitou nome vazio");
-            invalido(() -> c.cadastrar("x".repeat(121), "123", ""), "Aceitou nome maior que o banco");
-            invalido(() -> c.cadastrar("Cliente", "1".repeat(26), ""), "Aceitou telefone maior que o banco");
-            invalido(() -> c.cadastrar("Cliente", "123", "invalido"), "Aceitou email invalido");
-            invalido(() -> c.cadastrar("Cliente", "123", "x".repeat(255)), "Aceitou email maior que o banco");
+            invalido(() -> c.inserir(" ", "123", ""), "Aceitou nome vazio");
+            invalido(() -> c.inserir("x".repeat(121), "123", ""), "Aceitou nome maior que o banco");
+            invalido(() -> c.inserir("Cliente", "1".repeat(26), ""), "Aceitou telefone maior que o banco");
+            invalido(() -> c.inserir("Cliente", "123", "invalido"), "Aceitou email invalido");
+            invalido(() -> c.inserir("Cliente", "123", "x".repeat(255)), "Aceitou email maior que o banco");
             invalido(() -> c.excluir(0), "Aceitou ID zero");
-            c.cadastrar("  " + prefixo + "  ", "  11999999999  ", "");
+            c.inserir("  " + prefixo + "  ", "  11999999999  ", "");
             Cliente novo = buscar(c, prefixo);
             conferir(novo.getTelefone().equals("11999999999") && novo.getEmail() == null, "Nao normalizou campos");
-            c.atualizar(novo.getId(), prefixo + " editado", "11888888888", "teste@example.com");
+            c.alterar(novo.getId(), prefixo + " editado", "11888888888", "teste@example.com");
             conferir(buscar(c, prefixo + " editado").getEmail().equals("teste@example.com"), "Atualizacao nao persistiu");
             c.excluir(novo.getId());
             conferir(c.listar().size() == quantidade, "Exclusao nao removeu o registro de teste");
             ausente(() -> c.excluir(novo.getId()), "Nao avisou que cliente ja foi excluido");
-            ausente(() -> c.atualizar(novo.getId(), "Ausente", "123", ""), "Nao avisou que cliente nao existe");
+            ausente(() -> c.alterar(novo.getId(), "Ausente", "123", ""), "Nao avisou que cliente nao existe");
             try (Statement s = real.createStatement(); ResultSet r = s.executeQuery("SELECT cliente_id FROM ordem_servico LIMIT 1")) {
                 if (r.next()) {
                     int idVinculado = r.getInt(1);
@@ -279,7 +278,10 @@ class VerificarFluxos {
             VerificarCadastroDireto.executar(banco, prefixo);
             real.rollback();
             // O administrador temporário também deixa de existir após o rollback.
-            conferir(new br.com.assistencia.dao.ClienteDAO().listar().size() == quantidade, "Quantidade mudou apos rollback");
+            try (Statement consulta = banco.createStatement();
+                    ResultSet resultado = consulta.executeQuery("SELECT COUNT(*) FROM cliente")) {
+                conferir(resultado.next() && resultado.getInt(1) == quantidade, "Quantidade mudou apos rollback");
+            }
             System.out.println("OK: rollback executado; registros de teste nao foram mantidos.");
             System.out.println("Imagens: assistencia-menu.png e assistencia-clientes.png na pasta TEMP.");
             exit = 0;
@@ -291,5 +293,14 @@ class VerificarFluxos {
             SwingUtilities.invokeAndWait(() -> { for (Window w : Window.getWindows()) w.dispose(); });
         }
         System.exit(exit);
+    }
+
+    private static String hashTecnico(Connection banco, String email) throws SQLException {
+        try (PreparedStatement consulta = banco.prepareStatement("SELECT senha_hash FROM tecnico WHERE email = ?")) {
+            consulta.setString(1, email);
+            try (ResultSet resultado = consulta.executeQuery()) {
+                return resultado.next() ? resultado.getString(1) : null;
+            }
+        }
     }
 }

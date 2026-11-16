@@ -1,8 +1,8 @@
 package br.com.assistencia;
 
-import br.com.assistencia.controller.*;
-import br.com.assistencia.model.*;
-import br.com.assistencia.view.*;
+import br.com.assistencia.entidade.*;
+import br.com.assistencia.controle.*;
+import br.com.assistencia.visao.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ final class VerificarCadastroDireto {
         os.setTecnicoId(Sessao.idTecnico()); os.setStatus(StatusOrdem.ABERTA); os.setDefeitoRelatado(defeito);
         return os;
     }
-    private static OrdemServico carregar(OrdemServicoController controller, int id) throws Exception {
+    private static OrdemServico carregar(ManterOrdemServico controller, int id) throws Exception {
         return controller.listar().stream().filter(o -> o.getId() == id).findFirst().orElseThrow();
     }
     private static void aguardar(JFrame frame, boolean suporte) throws Exception {
@@ -48,20 +48,20 @@ final class VerificarCadastroDireto {
         throw new AssertionError("Registro não encontrado na tela.");
     }
     static void executar(Connection banco, String prefixo) throws Exception {
-        OrdemServicoController controller = new OrdemServicoController();
+        ManterOrdemServico controller = new ManterOrdemServico();
         List<Integer> antes = quantidades(banco);
         OrdemServico os = nova("  " + prefixo + " direto  ", "  " + prefixo + " notebook  ", prefixo + " só nomes");
         controller.salvarAtendimento(os);
         conferir(os.getId() > 0 && os.getClienteId() > 0 && os.getEquipamentoId() > 0, "Cadastros ou OS não foram criados");
         conferir(quantidades(banco).equals(antes.stream().map(n -> n + 1).toList()), "Cadastro direto não inseriu os três registros");
         int clienteOriginal = os.getClienteId(), equipamentoOriginal = os.getEquipamentoId();
-        Cliente cliente = new ClienteController().listar().stream().filter(c -> c.getId() == clienteOriginal).findFirst().orElseThrow();
-        Equipamento equipamento = new EquipamentoController().listar().stream().filter(e -> e.getId() == equipamentoOriginal).findFirst().orElseThrow();
+        Cliente cliente = new ManterCliente().listar().stream().filter(c -> c.getId() == clienteOriginal).findFirst().orElseThrow();
+        Equipamento equipamento = new ManterEquipamento().listar().stream().filter(e -> e.getId() == equipamentoOriginal).findFirst().orElseThrow();
         conferir(cliente.getTelefone() == null && cliente.getEmail() == null, "Inventou dados de contato");
         conferir(equipamento.getCategoriaId() == 0 && equipamento.getMarca() == null && equipamento.getNumeroSerie() == null,
                 "Inventou dados do aparelho");
-        new ClienteController().atualizar(clienteOriginal, cliente.getNome(), "", "");
-        new EquipamentoController().salvar(equipamento);
+        new ManterCliente().alterar(clienteOriginal, cliente.getNome(), "", "");
+        new ManterEquipamento().alterar(equipamento);
 
         List<Integer> aposCadastro = quantidades(banco);
         os.setStatus(StatusOrdem.ENTREGUE); controller.salvarAtendimento(os);
@@ -71,7 +71,7 @@ final class VerificarCadastroDireto {
         conferir(lida.getDataEncerramento() != null && lida.getEquipamentoModelo().equals(equipamento.getModelo()),
                 "OS parcial não apareceu corretamente na listagem");
         LocalDate dia = lida.getDataAbertura().toLocalDate();
-        LinhaRelatorio linha = new RelatorioController().consultar(dia, dia).stream()
+        LinhaRelatorio linha = new ManterRelatorio().consultar(dia, dia).stream()
                 .filter(r -> r.numeroOs() == os.getId()).findFirst().orElseThrow();
         conferir(Formularios.equipamento(linha.categoria(), linha.marca(), linha.modelo()).equals(equipamento.getModelo()),
                 "Relatório não apresentou aparelho sem marca/categoria");
@@ -99,7 +99,7 @@ final class VerificarCadastroDireto {
                 "Troca do cliente alterou o equipamento");
         os.setEquipamentoModelo(prefixo + " outro aparelho"); controller.salvarAtendimento(os);
         conferir(os.getEquipamentoId() != equipamentoOriginal, "Troca do nome do aparelho não criou o cadastro correspondente");
-        conferir(new ClienteController().listar().stream().anyMatch(c -> c.getId() == clienteOriginal && c.getNome().equals(cliente.getNome())),
+        conferir(new ManterCliente().listar().stream().anyMatch(c -> c.getId() == clienteOriginal && c.getNome().equals(cliente.getNome())),
                 "Renomeou um cadastro anterior ao editar a OS");
 
         JFrame[] frame = new JFrame[3];
