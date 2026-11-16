@@ -1,8 +1,8 @@
 package br.com.assistencia;
 
-import br.com.assistencia.controller.*;
-import br.com.assistencia.model.*;
-import br.com.assistencia.view.*;
+import br.com.assistencia.entidade.*;
+import br.com.assistencia.controle.*;
+import br.com.assistencia.visao.*;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.sql.*;
@@ -19,15 +19,15 @@ final class VerificarModulos {
         catch (SecurityException esperado) { }
     }
     static void semSessao() throws Exception {
-        negado(() -> new CategoriaController().listar());
-        negado(() -> new EquipamentoController().listar());
-        negado(() -> new OrdemServicoController().listar());
-        negado(() -> new RelatorioController().consultar(LocalDate.now(), LocalDate.now()));
+        negado(() -> new ManterCategoria().listar());
+        negado(() -> new ManterEquipamento().listar());
+        negado(() -> new ManterOrdemServico().listar());
+        negado(() -> new ManterRelatorio().consultar(LocalDate.now(), LocalDate.now()));
     }
     static void tecnicoComum() throws Exception {
-        new CategoriaController().listar(); new EquipamentoController().listar();
-        new OrdemServicoController().listar(); new OrdemServicoController().listarResponsaveis();
-        new RelatorioController().consultar(LocalDate.now(), LocalDate.now());
+        new ManterCategoria().listar(); new ManterEquipamento().listar();
+        new ManterOrdemServico().listar(); new ManterOrdemServico().listarResponsaveis();
+        new ManterRelatorio().consultar(LocalDate.now(), LocalDate.now());
     }
     private static void aguardarNova(JFrame janela) throws Exception {
         long limite = System.currentTimeMillis() + 10000;
@@ -76,7 +76,7 @@ final class VerificarModulos {
         os.setStatus(StatusOrdem.ABERTA); os.setDefeitoRelatado(defeito);
         return os;
     }
-    private static OrdemServico ordem(OrdemServicoController c, String defeito) throws Exception {
+    private static OrdemServico ordem(ManterOrdemServico c, String defeito) throws Exception {
         return c.listar().stream().filter(os -> os.getDefeitoRelatado().equals(defeito)).findFirst().orElseThrow();
     }
     private static void moverAbertura(Connection banco, int id, LocalDateTime data) throws Exception {
@@ -85,35 +85,35 @@ final class VerificarModulos {
         }
     }
     static void executar(Connection banco, String prefixo) throws Exception {
-        CategoriaController categorias = new CategoriaController();
-        EquipamentoController equipamentos = new EquipamentoController();
-        OrdemServicoController ordens = new OrdemServicoController();
-        RelatorioController relatorios = new RelatorioController();
-        ClienteController clientes = new ClienteController();
-        TecnicoController tecnicos = new TecnicoController();
+        ManterCategoria categorias = new ManterCategoria();
+        ManterEquipamento equipamentos = new ManterEquipamento();
+        ManterOrdemServico ordens = new ManterOrdemServico();
+        ManterRelatorio relatorios = new ManterRelatorio();
+        ManterCliente clientes = new ManterCliente();
+        ManterTecnico tecnicos = new ManterTecnico();
         String nomeCategoria = prefixo + " categoria";
-        invalido(() -> categorias.cadastrar(" "), "Aceitou categoria vazia");
-        invalido(() -> categorias.cadastrar("a".repeat(81)), "Aceitou categoria longa");
-        categorias.cadastrar(nomeCategoria);
+        invalido(() -> categorias.inserir(" "), "Aceitou categoria vazia");
+        invalido(() -> categorias.inserir("a".repeat(81)), "Aceitou categoria longa");
+        categorias.inserir(nomeCategoria);
         int categoriaId = categorias.listar().stream().filter(c -> c.getNome().equals(nomeCategoria)).findFirst().orElseThrow().getId();
-        ausente(() -> categorias.cadastrar(nomeCategoria), "Aceitou categoria duplicada");
-        categorias.atualizar(categoriaId, nomeCategoria + " editada");
+        ausente(() -> categorias.inserir(nomeCategoria), "Aceitou categoria duplicada");
+        categorias.alterar(categoriaId, nomeCategoria + " editada");
         conferir(categorias.listar().stream().anyMatch(c -> c.getId() == categoriaId && c.getNome().endsWith("editada")), "Edição de categoria falhou");
 
         Equipamento aparelho = new Equipamento(0, categoriaId, " Marca teste ", prefixo, " ");
         Equipamento invalido = new Equipamento(0, 0, "Marca", " ", "");
-        invalido(() -> equipamentos.salvar(invalido), "Aceitou equipamento sem nome/modelo");
-        equipamentos.salvar(aparelho);
+        invalido(() -> equipamentos.inserir(invalido), "Aceitou equipamento sem nome/modelo");
+        equipamentos.inserir(aparelho);
         aparelho = equipamentos.listar().stream().filter(e -> e.getModelo().equals(prefixo)).findFirst().orElseThrow();
         int equipamentoId = aparelho.getId();
         conferir(aparelho.getMarca().equals("Marca teste") && aparelho.getNumeroSerie() == null, "Não normalizou equipamento");
-        aparelho.setNumeroSerie("SERIE-TESTE"); equipamentos.salvar(aparelho);
+        aparelho.setNumeroSerie("SERIE-TESTE"); equipamentos.alterar(aparelho);
         ausente(() -> categorias.excluir(categoriaId), "Excluiu categoria com equipamento");
-        clientes.cadastrar(prefixo + " cliente", "11999999999", "");
+        clientes.inserir(prefixo + " cliente", "11999999999", "");
         int clienteId = clientes.listar().stream().filter(c -> c.getNome().equals(prefixo + " cliente")).findFirst().orElseThrow().getId();
         char[] senha = "Teste123".toCharArray();
         String email = "os-" + prefixo.toLowerCase() + "@example.com";
-        tecnicos.cadastrar("Técnico da OS", "123", email, false, senha, senha);
+        tecnicos.inserir("Técnico da OS", "123", email, false, senha, senha);
         int tecnicoId = tecnicos.listar().stream().filter(t -> t.getEmail().equals(email)).findFirst().orElseThrow().getId();
 
         OrdemServico dados = novaOrdem(clienteId, tecnicoId, equipamentoId, prefixo + " defeito");

@@ -1,9 +1,8 @@
 package br.com.assistencia;
 
-import br.com.assistencia.controller.*;
-import br.com.assistencia.dao.TecnicoDAO;
-import br.com.assistencia.model.*;
-import br.com.assistencia.view.*;
+import br.com.assistencia.entidade.*;
+import br.com.assistencia.controle.*;
+import br.com.assistencia.visao.*;
 import java.awt.Frame;
 import java.sql.*;
 import java.time.LocalDate;
@@ -17,17 +16,18 @@ final class VerificarSessaoRevogada {
 
     static void executar(Connection banco, String email, char[] senha,
             String emailAdmin, char[] senhaAdmin) throws Exception {
-        var auth = new AutenticacaoController();
-        var dao = new TecnicoDAO();
-        int idTecnico = dao.buscarCredencial(email).tecnico().getId();
-        int idAdmin = dao.buscarCredencial(emailAdmin).tecnico().getId();
-        var clientes = new ClienteController();
-        var categorias = new CategoriaController();
-        var equipamentos = new EquipamentoController();
-        var ordens = new OrdemServicoController();
-        // Controllers são criados antes da exclusão, como nas telas já abertas.
+        var auth = new Autenticacao();
+        var tecnicos = new ManterTecnico();
+        List<Tecnico> registrados = tecnicos.listar();
+        int idTecnico = registrados.stream().filter(t -> email.equals(t.getEmail())).findFirst().orElseThrow().getId();
+        int idAdmin = Sessao.idTecnico();
+        var clientes = new ManterCliente();
+        var categorias = new ManterCategoria();
+        var equipamentos = new ManterEquipamento();
+        var ordens = new ManterOrdemServico();
+        // As telas mantêm suas classes de cadastro abertas durante a exclusão.
         String nomeCliente = prefixo + " sessao";
-        clientes.cadastrar(nomeCliente, "", "");
+        clientes.inserir(nomeCliente, "", "");
         int idCliente = buscar(clientes, nomeCliente).getId();
         var os = new OrdemServico();
         os.setClienteNome(prefixo + " cliente bloqueado");
@@ -37,22 +37,22 @@ final class VerificarSessaoRevogada {
         os.setDefeitoRelatado("Nao deve salvar depois da exclusao");
         List<Operacao> operacoes = List.of(
                 new Operacao("consulta de clientes", () -> clientes.listar()),
-                new Operacao("cadastro de cliente", () -> clientes.cadastrar(prefixo + " bloqueado", "", "")),
-                new Operacao("edicao de cliente", () -> clientes.atualizar(idCliente, "Alteracao bloqueada", "", "")),
+                new Operacao("cadastro de cliente", () -> clientes.inserir(prefixo + " bloqueado", "", "")),
+                new Operacao("edicao de cliente", () -> clientes.alterar(idCliente, "Alteracao bloqueada", "", "")),
                 new Operacao("exclusao de cliente", () -> clientes.excluir(idCliente)),
                 new Operacao("consulta de categorias", () -> categorias.listar()),
-                new Operacao("cadastro de categoria", () -> categorias.cadastrar(prefixo + " bloqueada")),
+                new Operacao("cadastro de categoria", () -> categorias.inserir(prefixo + " bloqueada")),
                 new Operacao("consulta de equipamentos", () -> equipamentos.listar()),
-                new Operacao("cadastro de equipamento", () -> equipamentos.salvar(new Equipamento(0, 0, null, "Bloqueado", null))),
+                new Operacao("cadastro de equipamento", () -> equipamentos.inserir(new Equipamento(0, 0, null, "Bloqueado", null))),
                 new Operacao("consulta de ordens", () -> ordens.listar()),
                 new Operacao("consulta de responsaveis", () -> ordens.listarResponsaveis()),
                 new Operacao("abertura de ordem", () -> ordens.salvarAtendimento(os)),
-                new Operacao("relatorio", () -> new RelatorioController().consultar(LocalDate.now(), LocalDate.now())));
+                new Operacao("relatorio", () -> new ManterRelatorio().consultar(LocalDate.now(), LocalDate.now())));
         try {
             auth.entrar(email, senha);
             falharConexao = true;
             try {
-                ausente(() -> clientes.cadastrar("Nao deve ser salvo", "", ""), "Operou sem validar o acesso no banco");
+                ausente(() -> clientes.inserir("Nao deve ser salvo", "", ""), "Operou sem validar o acesso no banco");
                 conferir(Sessao.estaAutenticado(), "Falha de conexao foi tratada como exclusao");
             } finally {
                 falharConexao = false;
@@ -62,7 +62,7 @@ final class VerificarSessaoRevogada {
                 auth.entrar(email, senha);
                 Savepoint ponto = banco.setSavepoint();
                 try {
-                    dao.excluir(idTecnico); // Simula a exclusão por outro administrador.
+                    simularExclusao(banco, idTecnico);
                     negar(operacao.tarefa(), operacao.nome());
                     conferir(!Sessao.estaAutenticado() && Sessao.idTecnico() == 0,
                             "A sessao excluida continuou ativa: " + operacao.nome());
@@ -76,8 +76,8 @@ final class VerificarSessaoRevogada {
             auth.entrar(emailAdmin, senhaAdmin);
             Savepoint ponto = banco.setSavepoint();
             try {
-                dao.excluir(idAdmin);
-                negar(() -> new TecnicoController().listar(), "administrador excluido");
+                simularExclusao(banco, idAdmin);
+                negar(() -> new ManterTecnico().listar(), "administrador excluido");
                 conferir(!Sessao.estaAutenticado(), "Sessao do administrador excluido continuou ativa");
             } finally {
                 banco.rollback(ponto);
@@ -99,7 +99,14 @@ final class VerificarSessaoRevogada {
         } catch (SecurityException esperado) { }
     }
 
-    private static void verificarTela(Connection banco, AutenticacaoController auth,
+    private static void simularExclusao(Connection banco, int id) throws SQLException {
+        try (PreparedStatement comando = banco.prepareStatement("DELETE FROM tecnico WHERE id = ?")) {
+            comando.setInt(1, id);
+            conferir(comando.executeUpdate() == 1, "Cadastro de teste não foi excluído");
+        }
+    }
+
+    private static void verificarTela(Connection banco, Autenticacao auth,
             String email, char[] senha, int idTecnico) throws Exception {
         auth.entrar(email, senha);
         TelaPrincipal[] menu = new TelaPrincipal[1];
@@ -109,7 +116,7 @@ final class VerificarSessaoRevogada {
         javax.swing.Timer[] aviso = new javax.swing.Timer[1];
         boolean[] avisoFechado = new boolean[1];
         try {
-            new TecnicoDAO().excluir(idTecnico);
+            simularExclusao(banco, idTecnico);
             edt(() -> {
                 aviso[0] = new javax.swing.Timer(100, evento -> {
                     for (java.awt.Window janela : java.awt.Window.getWindows()) {

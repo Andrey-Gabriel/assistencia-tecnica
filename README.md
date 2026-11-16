@@ -28,13 +28,13 @@ Configure as variáveis de ambiente **do usuário** no Windows:
 | `MYSQL_URL` | Opcional. Padrão: `jdbc:mysql://127.0.0.1:3306/assistencia_tecnica`. |
 
 Feche todas as janelas do NetBeans e abra novamente após configurar as variáveis.
-No projeto, abra `src/br/com/assistencia/dao/TesteConexao.java` e execute o arquivo com **Shift+F6**.
+No projeto, abra `src/br/com/assistencia/entidade/TesteConexao.java` e execute o arquivo com **Shift+F6**.
 O teste informa o banco, o usuário autenticado, a versão do MySQL e a quantidade de categorias.
 Ele apenas consulta dados. Caso a tabela `categoria_equipamento` não exista, execute primeiro o script de estrutura indicado acima.
 
 ## Executar a aplicação
 
-Execute o projeto com **F6**. A classe principal é `br.com.assistencia.view.TelaLogin`.
+Execute o projeto com **F6**. A classe principal é `br.com.assistencia.visao.TelaLogin`.
 Entre com o **e-mail e a senha de um técnico cadastrado**. Essas credenciais são diferentes do usuário e da senha do MySQL configurados nas variáveis de ambiente.
 
 No primeiro uso, clique em **Primeiro Acesso** no rodapé do login e preencha os dados do gerente. Assim que o cadastro for concluído, entre com o e-mail e a senha escolhidos. O gerente recebe o perfil de administrador. Se o banco já tiver um administrador, o sistema informa que o primeiro acesso foi configurado.
@@ -53,9 +53,9 @@ Nos cadastros:
 - **Sistema → Sair da conta** encerra a sessão e retorna ao login.
 - No cadastro de clientes, somente o nome é obrigatório. No cadastro de equipamentos, somente o nome/modelo é obrigatório; os demais dados podem ser completados depois.
 
-As oito telas têm arquivos `.form` para edição na aba Design do NetBeans: login, menu principal, clientes, técnicos, categorias, equipamentos, ordens e relatório. O modelo `Tecnico` criado pelo grupo e o DAO de categorias foram reaproveitados; o controlador de categorias recebeu validação de ID e verificação de sessão.
+As oito telas têm arquivos `.form` para edição na aba Design do NetBeans: login, menu principal, clientes, técnicos, categorias, equipamentos, ordens e relatório.
 
-O padrão visual comum está em `src/br/com/assistencia/view/EstiloVisual.java`: fontes, cores, bordas, botões, campos e tabelas. Os arquivos `.form` mantêm os componentes e layouts editáveis no NetBeans. Para mudar uma característica visual em todo o sistema, ajuste esse padrão compartilhado.
+O padrão visual comum está em `src/br/com/assistencia/visao/EstiloVisual.java`: fontes, cores, bordas, botões, campos e tabelas. Os arquivos `.form` mantêm os componentes e layouts editáveis no NetBeans. Para mudar uma característica visual em todo o sistema, ajuste esse padrão compartilhado.
 
 ## Fluxo de atendimento
 
@@ -78,15 +78,9 @@ As senhas são armazenadas como PBKDF2-HMAC-SHA256, com salt aleatório por senh
 
 ## Testar a etapa atual
 
-Se aparecer `NoSuchMethodError` ou uma mensagem como `'boolean br.com.assistencia.dao.TecnicoDAO.ehAdministrador(int)'`, feche as janelas da aplicação, salve os arquivos e use **Limpar e Construir Projeto** no NetBeans antes de executar novamente com **F6**. Isso recompila as classes que precisam trabalhar juntas. Uma execução Java que já estava aberta pode continuar usando classes antigas mesmo depois de recompilar.
+Ao atualizar o projeto, feche as janelas da aplicação e use **Limpar e Construir Projeto** no NetBeans antes de executar novamente com **F6**. Isso remove as classes compiladas nos pacotes antigos.
 
-Ao atualizar o projeto em outro computador, copie ou obtenha pelo Git a versão completa, incluindo DAOs e controladores, e faça a mesma limpeza e construção antes de executar.
-
-Compile o projeto no NetBeans e execute no PowerShell, na pasta do projeto:
-
-```powershell
-.\scripts\Testar-Projeto.ps1
-```
+A classe `VerificarFluxos`, na pasta `test`, inicia os testes de integração. Ela recebe a URL real do banco por `MYSQL_TESTE_URL_REAL` e os mesmos `MYSQL_USUARIO` e `MYSQL_SENHA` da aplicação. No processo de teste, configure `MYSQL_URL=jdbc:assistencia-teste` para que as gravações usem a conexão da transação de teste.
 
 Os testes verificam login, perfis, senhas, cadastros, vínculos, valores, abertura e encerramento das ordens e relatório. Incluem cadastro direto pelos nomes, rollback após uma falha na OS, edição sem criar registros repetidos e aparelhos sem marca/categoria no relatório. Também verificam os botões, a confirmação de descarte e o filtro do relatório até as 23h59 do último dia. As gravações de teste usam uma transação com rollback; os registros de teste não são mantidos. O MySQL pode consumir números de IDs mesmo após rollback. As imagens de conferência das telas ficam na pasta temporária do Windows.
 
@@ -128,18 +122,22 @@ erDiagram
     EQUIPAMENTO ||--o{ ORDEM_SERVICO : "é recebido em"
 ```
 
-## Caminho de uma ação no MVC
+## Organização baseada no exemplo de sala
+
+- `controle` contém as classes que representam os dados, como `Cliente` e `OrdemServico`, no papel de `Aluno` no exemplo.
+- `entidade` contém o `DAO`, que abre a conexão, e as classes `Manter...`, que validam os dados e executam as operações com JDBC. Por exemplo, `ManterCategoria` tem `inserir`, `listar`, `alterar` e `excluir`.
+- `visao` contém as telas Swing e seus formulários do NetBeans. Cada tela chama a classe responsável pela operação.
 
 ```mermaid
 flowchart LR
     Tela["Visão Swing<br/>Lê campos e exibe mensagens"]
-    Controle["Controlador<br/>Valida e coordena a ação"]
-    DAO["DAO com JDBC<br/>Executa a consulta ou gravação"]
+    Manter["ManterCliente<br/>Valida e grava com JDBC"]
+    DAO["DAO.abrirBanco()<br/>Abre a conexão"]
     Banco[("MySQL")]
-    Tela -->|"Clique em Salvar"| Controle --> DAO --> Banco
+    Tela -->|"Clique em Salvar"| Manter --> DAO --> Banco
 ```
 
-O modelo representa os dados do domínio, como cliente e ordem de serviço. Depois de salvar, o controlador solicita a atualização da lista e a visão exibe o resultado na tabela.
+Depois de salvar, a tela solicita a nova lista a `ManterCliente` e a exibe na tabela.
 
 ## Ordem sugerida para validar o sistema
 
